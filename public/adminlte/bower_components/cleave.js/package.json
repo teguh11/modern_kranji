@@ -1,0 +1,131 @@
+{
+  "_args": [
+    [
+      "cleave.js",
+      "/var/www/html/modern_kranji/modern_kranji"
+    ]
+  ],
+  "_from": "cleave.js@latest",
+  "_hasShrinkwrap": false,
+  "_id": "cleave.js@1.5.3",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/cleave.js",
+  "_nodeVersion": "8.9.1",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/cleave.js_1.5.3_1563195091342_0.06546712524121667"
+  },
+  "_npmUser": {
+    "email": "risonhuang@gmail.com",
+    "name": "nosir"
+  },
+  "_npmVersion": "6.9.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "cleave.js",
+    "raw": "cleave.js",
+    "rawSpec": "",
+    "scope": null,
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/cleave.js/-/cleave.js-1.5.3.tgz",
+  "_shasum": "1ef36e1375dea289bffeefe8ebb1e3ef2ee23240",
+  "_shrinkwrap": null,
+  "_spec": "cleave.js",
+  "_where": "/var/www/html/modern_kranji/modern_kranji",
+  "author": {
+    "email": "risonhuang@gmail.com",
+    "name": "Max Huang",
+    "url": "http://github.com/nosir"
+  },
+  "bugs": {
+    "url": "https://github.com/nosir/cleave.js/issues"
+  },
+  "dependencies": {},
+  "description": "JavaScript library for formatting input text content when you are typing",
+  "devDependencies": {
+    "babel-core": "^6.11.4",
+    "babel-eslint": "^6.0.5",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "babelify": "^7.3.0",
+    "browserify": "^13.0.1",
+    "chai": "^3.5.0",
+    "create-react-class": "^15.5.2",
+    "del": "^3.0.0",
+    "errorify": "^0.3.1",
+    "eslint-plugin-react": "^5.2.2",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-eslint": "^2.0.0",
+    "gulp-header": "^1.8.3",
+    "gulp-mocha": "^2.2.0",
+    "gulp-mocha-phantomjs": "^0.12.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-rimraf": "^0.2.0",
+    "gulp-sync": "^0.1.4",
+    "gulp-uglify": "^1.5.3",
+    "mocha": "^3.1.2",
+    "react": "^15.1.0",
+    "react-dom": "^15.1.0",
+    "require-dir": "^0.3.0",
+    "rollup": "^1.7.0",
+    "rollup-plugin-commonjs": "^9.2.1",
+    "rollup-plugin-terser": "^4.0.4",
+    "should": "^9.0.0",
+    "underscore": "^1.8.3",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.7.0",
+    "webpack": "^1.13.1",
+    "webpack-stream": "^3.2.0"
+  },
+  "directories": {},
+  "dist": {
+    "fileCount": 521,
+    "integrity": "sha512-tLum0abk+NRUZtMxpqLQS0jE9k2KYzsUlnMAqfMd2LAf8bb5xTHLHXTtPyI+dCk6DThtmWER3EzKfUi4NHdR7A==",
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJdLHbUCRA9TVsSAnZWagAABb0P/3qH1esi84p2NaYLmE9e\nNAv9axOsxPWj65zFs1atCBDMcGBUA3CuXpug+O7CDIBl18p3pRhA94qjTnPU\n5h5pb5S9TWgIiOS2OZduFtDV1EzE+2NXOws5IucIBkLVzxhXGAR0+gBLO1oB\nEbODzmytsss2Qh9BTG4klK/h/nrTJguKl1i9hbUtssmst12LsyRM98SRgfdR\n0R96WLLnlqPiEIxkm28dFnCjA91kDq/uO8WTaL3NTOXes0SLv9z/BsmItrr+\nP0aEstiJRWbuFv9o1v3nbj3AkUQmevHgTx+rQJasNHAzjB+/EjvkMr+0o82p\nNTGjayW3c8TB9D2B6oKRo4ytqK9ioEZB2yZmn6lHVBrAi9Z83P1lhPKwMqRw\nzLa2Dz+N6OGA+lgSOa7KIynTOncGMiLGOraoPu4tT62DfIearbp9CGe0uNGY\nwgIBt1IMtzsWwU5HRaGk+GhMgYrts7BmU3zmqUJVbkbR8yjqc63qBLqeL0Zq\ni5DUAw/c9+TEq7yUoToE6pvln54yaz5nfqTNVOnx74Fr6OyGT0VJgWXtMGNv\n0m4siPlVPVlG2Ox8rxd9wMnlcpWGbMeEav+wmxrakMj1TQXw8n46AMhRPkRU\nSqEs0mXADf+lR2gevbIIW8qppNzqYb2F0NAGEsR/onSI/dSHaMOqf0r77yIr\nC1qz\r\n=BdHK\r\n-----END PGP SIGNATURE-----\r\n",
+    "shasum": "1ef36e1375dea289bffeefe8ebb1e3ef2ee23240",
+    "tarball": "https://registry.npmjs.org/cleave.js/-/cleave.js-1.5.3.tgz",
+    "unpackedSize": 9637935
+  },
+  "docs": "https://github.com/nosir/cleave.js/blob/master/README.md",
+  "gitHead": "996f977ff8f8397b026c3a0f99ecc225546300da",
+  "homepage": "https://github.com/nosir/cleave.js",
+  "keywords": [
+    "cleave",
+    "form",
+    "format",
+    "html",
+    "input",
+    "javascript"
+  ],
+  "license": "Apache-2.0",
+  "main": "dist/cleave.js",
+  "maintainers": [
+    {
+      "name": "nosir",
+      "email": "risonhuang@gmail.com"
+    }
+  ],
+  "module": "dist/cleave-esm.js",
+  "name": "cleave.js",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nosir/cleave.js.git"
+  },
+  "scripts": {
+    "build": "gulp build",
+    "test": "gulp test"
+  },
+  "title": "cleave.js",
+  "version": "1.5.3"
+}
