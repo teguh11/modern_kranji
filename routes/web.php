@@ -13,21 +13,19 @@
 
 
 Route::get('/', function () {
-    // return view('themes.adminlte.login');
-    // return view('themes.adminlte.app');
     return view('welcome');
 });
-
-// Route::get('/dapur', 'AuthController@login')->name("showloginpage");
-// Route::post('/dapur', 'AuthController@login')->name("login");
 
 Auth::routes();
 
 Route::resource('units','UnitsController');
 Route::get('/units/show/data', 'UnitsController@data')->name('units.data');
-Route::get('/pembeli', 'PembeliController@index')->name('pembeli');
-Route::get('/pembeli/data', 'PembeliController@datapembeli')->name('pembeli.data');
-Route::get('/pembeli/create', 'PembeliController@createForm')->name('pembeli.create.form');
-Route::post('/pembeli/createdata', 'PembeliController@create')->name('pembeli.create');
-Route::get('/pembeli/update', 'PembeliController@updateForm')->name('pembeli.update.form');
-Route::put('/pembeli/updatedata/{id}', 'PembeliController@update')->name('pembeli.update');
+
+Route::resource('clients','ClientsController');
+Route::get('/clients/show/data', 'ClientsController@data')->name('clients.data');
+
+Route::resource('orders','OrdersController');
+Route::get('/orders/show/data', 'OrdersController@data')->name('orders.data');
+
+Route::resource('users','UsersController');
+Route::get('/users/show/data', 'UsersController@data')->name('users.data');

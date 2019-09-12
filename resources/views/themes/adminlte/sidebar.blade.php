@@ -25,8 +25,10 @@
       <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">MAIN NAVIGATION</li>
-        <li><a href="{{route('pembeli')}}"><i class="fa fa-users"></i> <span>Pembeli</span></a></li>
+        <li><a href="{{route('clients.index')}}"><i class="fa fa-users"></i> <span>CUSTOMERS</span></a></li>
         <li><a href="{{route('units.index')}}"><i class="fa fa-users"></i> <span>UNITS</span></a></li>
+        <li><a href="{{route('orders.index')}}"><i class="fa fa-users"></i> <span>ORDERS</span></a></li>
+        <li><a href="{{route('users.index')}}"><i class="fa fa-users"></i> <span>USERS</span></a></li>
         <li class="treeview">
           <a href="#">
             <i class="fa fa-files-o"></i>

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PembeliRequest extends FormRequest
+class UserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,14 +24,11 @@ class PembeliRequest extends FormRequest
     public function rules()
     {
         return [
-            'nama' => 'required',
-            'no_ktp' => 'required|digits:16',
-            'alamat' => 'required',
-            'npwp' => 'required',
-            'telp_rumah' => 'required',
-            'telp_kantor' => 'required',
-            'handphone' => 'required',
+            'name' => 'required',
             'email' => 'required|email',
+            'password' => 'required|confirmed:password_confirmation',
+            'role' => 'required'
+            //
         ];
     }
 }

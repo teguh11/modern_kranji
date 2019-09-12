@@ -2,7 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
+use App\ModelHasRoles;
+use App\Roles;
+use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Yajra\DataTables\Facades\DataTables;
 
 class UsersController extends Controller
 {
@@ -13,7 +20,17 @@ class UsersController extends Controller
      */
     public function index()
     {
+        return view('layouts.users.index');
         //
+    }
+
+    public function data()
+    {
+        $users = DB::table('users')->select(['users.name', 'users.email', 'roles.name as role'])
+            ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+            ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')->get();
+        return DataTables::of($users)->make(true);
+        # code...
     }
 
     /**
@@ -23,6 +40,8 @@ class UsersController extends Controller
      */
     public function create()
     {
+        $roles = Roles::all();
+        return view('layouts.users.form', ['type'=> 'create', 'roles' => $roles]);
         //
     }
 
@@ -32,9 +51,21 @@ class UsersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        //
+        $request->validated();
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+        $user->assignRole($request->role);
+
+        if($user){
+            return redirect(route('users.index'));
+        }
+
+//
     }
 
     /**
@@ -56,7 +87,7 @@ class UsersController extends Controller
      */
     public function edit($id)
     {
-        //
+        return view('layouts.users.form');
     }
 
     /**

@@ -10,13 +10,18 @@
       $('#list-pembeli').DataTable({
         processing: true,
         serverSide: true,
-        ajax: '{{route('pembeli.data')}}',
+        ajax: '{{route('orders.data')}}',
         columns: [
-            {data:'id', name: 'id'},
-            {data:'nama', name: 'name'},
-            {data:'email', name: 'email'},
-            {data:'handphone', name: 'handphone'},
-            {data: 'action', name: 'action'}
+            {data:'no_order', name: 'no_order'},
+            {data:'pembeli', name: 'pembeli'},
+            {data:'user', name: 'user'},
+            {data: 'nominal', name: 'nominal'},
+            {data:'unit', name: 'unit'},
+            {data:'payment_method', name: 'payment_method'},
+            {data:'payment_date', name: 'payment_date'},
+            {data: 'refundable_status', name: 'refundable_status'},
+            {data: 'action', name: 'action'},
+            
         ]
       });
     })
@@ -34,7 +39,7 @@
         <div class="box-body">
           <div class="row">
             <div class="col-xs-12 col-sm-4 pull-right">
-              <a href="{{route('pembeli.create.form')}}" class="btn btn-block btn-info btn-sm">Tambah Data</a>
+              <a href="{{route('orders.create')}}" class="btn btn-block btn-info btn-sm">Tambah Data</a>
             </div>
           </div>
         </div>
@@ -49,6 +54,10 @@
               <th>Email</th>
               <th>Handphone</th>
               <th>Action</th>
+              <th>Id</th>
+              <th>Nama</th>
+              <th>Email</th>
+              <th>Handphone</th>
             </tr>
             </thead>
           </table>

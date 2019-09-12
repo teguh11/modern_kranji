@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\TipeUnit;
+use App\Floors;
 use App\Units;
-use App\Lantai;
+use App\UnitTypes;
 use App\Http\Requests\UnitRequest;
 use Illuminate\Http\Request;
 use Yajra\Datatables\Datatables;
 use Illuminate\Support\Facades\DB;
-use SebastianBergmann\CodeCoverage\Report\Xml\Unit;
 
 class UnitsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth']);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -26,7 +29,7 @@ class UnitsController extends Controller
 
     public function data()
     {
-        $units = Units::all(['id','no_unit', 'nama_unit', 'tipe_unit', 'lantai', 'luas', 'harga_pengikatan', 'jumlah_unit', 'stock_unit']);
+        $units = Units::all(['id','unit_number', 'unit_name', 'unit_type_id', 'floor_id', 'large', 'price', 'unit_total', 'unit_stock']);
         return DataTables::of($units)
         ->addColumn('action', function($unit){
             return '<a href="'.route('units.edit',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
@@ -41,8 +44,8 @@ class UnitsController extends Controller
      */
     public function create()
     {
-        $tipe_unit = TipeUnit::where('status', 1)->get();
-        $lantai = Lantai::where('status', 1)->get();
+        $tipe_unit = UnitTypes::where('status', 1)->get();
+        $lantai = Floors::where('status', 1)->get();
         return view('layouts.units.form',['type' => 'create', 'tipe_units' => $tipe_unit, 'lantais'=> $lantai]);
     }
 
@@ -57,14 +60,14 @@ class UnitsController extends Controller
         $validateRequest = $request->validated();
 
         $insert = DB::table("unit")->insert([
-            'no_unit' => str_replace(",","", $request->no_unit),
-            'nama_unit' => $request->nama_unit,
-            'tipe_unit' => $request->tipe_unit,
-            'lantai' => str_replace(",","", $request->lantai),
-            'luas' => str_replace(",","", $request->luas),
-            'harga_pengikatan' => str_replace(",","", $request->harga_pengikatan),
-            'jumlah_unit' => str_replace(",","", $request->jumlah_unit),
-            'stock_unit' => str_replace(",","", $request->jumlah_unit),
+            'unit_number' => str_replace(",","", $request->unit_number),
+            'unit_name' => $request->unit_name,
+            'unit_type_id' => $request->unit_type,
+            'floor_id' => $request->floor,
+            'large' => str_replace(",","", $request->large),
+            'price' => str_replace(",","", $request->price),
+            'unit_total' => str_replace(",","", $request->unit_total),
+            'unit_stock' => str_replace(",","", $request->unit_total),
             'status' => 1
         ]);
 
@@ -95,8 +98,8 @@ class UnitsController extends Controller
     public function edit(Request $request, $id)
     {
         $unit = Units::where('id', $id)->first(); 
-        $tipe_unit = TipeUnit::where('status', 1)->get();
-        $lantai = Lantai::where('status', 1)->get();
+        $tipe_unit = UnitTypes::where('status', 1)->get();
+        $lantai = Floors::where('status', 1)->get();
         $options = ['type' => 'update', 'data' => $unit, 'tipe_units' => $tipe_unit, 'lantais'=>$lantai];
         return view('layouts.units.form', $options);
     }
@@ -114,17 +117,18 @@ class UnitsController extends Controller
         $update = DB::table("unit")
             ->where('id', $id)
             ->update([
-                'no_unit' => str_replace(",","", $request->no_unit),
-                'nama_unit' => $request->nama_unit,
-                'tipe_unit' => $request->tipe_unit,
-                'lantai' => str_replace(",","", $request->lantai),
-                'luas' => str_replace(",","", $request->luas),
-                'harga_pengikatan' => str_replace(",","", $request->harga_pengikatan),
-                'jumlah_unit' => str_replace(",","", $request->jumlah_unit),
-            ]);
+                'unit_number' => str_replace(",","", $request->unit_number),
+                'unit_name' => $request->unit_name,
+                'unit_type_id' => $request->unit_type,
+                'floor_id' => $request->floor,
+                'large' => str_replace(",","", $request->large),
+                'price' => str_replace(",","", $request->price),
+                'unit_total' => str_replace(",","", $request->unit_total),
+                'unit_stock' => str_replace(",","", $request->unit_total),
+                ]);
 
         if($update){
-            return redirect(route('unit.index'));
+            return redirect(route('units.index'));
         }
     }
 

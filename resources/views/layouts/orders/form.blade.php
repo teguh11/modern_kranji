@@ -3,19 +3,19 @@
 <script src="{{asset('adminlte/bower_components/cleave.js/dist/cleave.min.js')}}"></script>
 <script>
 $(function(){
-  new Cleave('#price', {
+  new Cleave('#harga_pengikatan', {
     numeral: true,
     numeralThousandsGroupStyle: 'thousand'
   });
-  new Cleave('#unit_number', {
+  new Cleave('#no_unit', {
     numeral: true,
     numeralThousandsGroupStyle: 'thousand'
   });
-  new Cleave('#large', {
+  new Cleave('#luas', {
     numeral: true,
     numeralThousandsGroupStyle: 'thousand'
   });
-  new Cleave('#unit_total', {
+  new Cleave('#jumlah_unit', {
     numeral: true,
     numeralThousandsGroupStyle: 'thousand'
   });
@@ -34,7 +34,7 @@ $(function(){
         <!-- /.box-header -->
         <!-- form start -->
         <?php
-          $action = $type == 'update' ? route('units.update', $data->id): route('units.store');
+          $action = $type == 'update' ? route('orders.update', $data->id): route('orders.store');
         ?>
         <form role="form" action="{{$action}}" method="POST">
           @csrf
@@ -44,10 +44,10 @@ $(function(){
           <div class="box-body">
             <div class="row">
               <div class="col-md-6">
-                <div class="form-group @error('unit_name') has-error @enderror">
-                  <label for="unit_name">Nama Unit</label>
-                  <input type="text" class="form-control" id="unit_name" placeholder="Nama" name="unit_name" value="{{old('unit_name') == "" ? (isset($data)?$data->unit_name : "") : old('unit_name')}}">
-                  @error('unit_name')
+                <div class="form-group @error('nama_unit') has-error @enderror">
+                  <label for="nama"></label>
+                  <input type="text" class="form-control" id="nama_unit" placeholder="Nama" name="nama_unit" value="{{old('nama_unit') == "" ? (isset($data)?$data->nama_unit : "") : old('nama_unit')}}">
+                  @error('nama_unit')
                     <span class="help-block" role="alert">
                       <strong>{{ $message }}</strong>
                     </span>
@@ -55,10 +55,10 @@ $(function(){
                 </div>      
               </div>
               <div class="col-md-6">
-                <div class="form-group @error('unit_number') has-error @enderror">
-                  <label for="unit_number">No Unit</label>
-                  <input type="text" class="form-control" id="unit_number" placeholder="" name="unit_number" value="{{old('unit_number') == '' ? (isset($data)?$data->unit_number:"") : old('unit_number')}}">
-                  @error('unit_number')
+                <div class="form-group @error('no_unit') has-error @enderror">
+                  <label for="no_unit">No Unit</label>
+                  <input type="text" class="form-control" id="no_unit" placeholder="" name="no_unit" value="{{old('no_unit') == '' ? (isset($data)?$data->no_unit:"") : old('no_unit')}}">
+                  @error('no_unit')
                     <span class="help-block" role="alert">
                       <strong>{{ $message }}</strong>
                     </span>
@@ -71,9 +71,9 @@ $(function(){
               <div class="col-md-6">
                 <div class="form-group">
                     <label>Tipe Unit</label>
-                    <select class="form-control" name="unit_type">
+                    <select class="form-control" name="tipe_unit">
                       @foreach ($tipe_units as $tipe_unit)
-                        <option value="{{$tipe_unit->id}}" {{old('unit_type') == $tipe_unit->id ? "selected" : isset($data) && $data->unit_type_id == $tipe_unit->id ? "selected" : ""}}>{{$tipe_unit->name}}</option>
+                        <option value="{{$tipe_unit->id}}" {{old('tipe_unit') == $tipe_unit->id ? "selected" : isset($data) && $data->tipe_unit == $tipe_unit->id ? "selected" : ""}}>{{$tipe_unit->nama}}</option>
                       @endforeach
                     </select>
                   </div>
@@ -81,9 +81,9 @@ $(function(){
               <div class="col-md-6">
                 <div class="form-group">
                   <label>Lantai</label>
-                  <select class="form-control" name="floor">
+                  <select class="form-control" name="lantai">
                     @foreach ($lantais as $lantai)
-                      <option value="{{$lantai->id}}" {{old('floor') == $lantai->id ? "selected" : isset($data) && $data->floor_id == $lantai->id ? "selected" : ""}}>{{$lantai->name}}</option>
+                      <option value="{{$lantai->id}}" {{old('lantai') == $lantai->id ? "selected" : isset($data) && $data->lantai == $lantai->id ? "selected" : ""}}>{{$lantai->nama}}</option>
                     @endforeach
                   </select>
                 </div>
@@ -91,10 +91,10 @@ $(function(){
             </div>
             <div class="row">
               <div class="col-md-4">
-                <div class="form-group @error('large') has-error @enderror">
-                  <label for="large">Luas</label>
-                  <input type="text" class="form-control" id="large" placeholder="" name="large" value="{{old('large') == '' ? (isset($data)?$data->large:"") : old('large')}}">
-                  @error('large')
+                <div class="form-group @error('luas') has-error @enderror">
+                  <label for="luas">Luas</label>
+                  <input type="text" class="form-control" id="luas" placeholder="" name="luas" value="{{old('luas') == '' ? (isset($data)?$data->luas:"") : old('luas')}}">
+                  @error('luas')
                     <span class="help-block" role="alert">
                       <strong>{{ $message }}</strong>
                     </span>
@@ -102,10 +102,10 @@ $(function(){
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="form-group @error('price') has-error @enderror">
-                  <label for="price">Harga</label>
-                  <input type="text" class="form-control" id="price" placeholder="" name="price" value="{{old('price') == '' ? (isset($data)?$data->price:"") : old('price')}}">
-                  @error('price')
+                <div class="form-group @error('harga_pengikatan') has-error @enderror">
+                  <label for="telp_kantor">Harga</label>
+                  <input type="text" class="form-control" id="harga_pengikatan" placeholder="" name="harga_pengikatan" value="{{old('harga_pengikatan') == '' ? (isset($data)?$data->harga_pengikatan:"") : old('harga_pengikatan')}}">
+                  @error('harga_pengikatan')
                     <span class="help-block" role="alert">
                       <strong>{{ $message }}</strong>
                     </span>
@@ -113,10 +113,10 @@ $(function(){
                 </div>
               </div>
               <div class="col-md-4">
-                  <div class="form-group @error('unit_total') has-error @enderror">
-                    <label for="unit_total">Jumlah Unit</label>
-                    <input type="text" class="form-control" id="unit_total" placeholder="" name="unit_total" value="{{old('unit_total') == '' ? (isset($data)?$data->unit_total:"") : old('unit_total')}}">
-                    @error('unit_total')
+                  <div class="form-group @error('jumlah_unit') has-error @enderror">
+                    <label for="telp_kantor">Jumlah Unit</label>
+                    <input type="text" class="form-control" id="jumlah_unit" placeholder="" name="jumlah_unit" value="{{old('jumlah_unit') == '' ? (isset($data)?$data->jumlah_unit:"") : old('jumlah_unit')}}">
+                    @error('jumlah_unit')
                       <span class="help-block" role="alert">
                         <strong>{{ $message }}</strong>
                       </span>

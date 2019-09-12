@@ -5,8 +5,9 @@ namespace App;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Model;
 
-class Pembeli extends Model
+class UnitTypes extends Model
 {
     use HasRoles;
-    protected $table = 'pembeli';
+    protected $table = 'unit_types';
+    //
 }

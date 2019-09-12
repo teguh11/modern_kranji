@@ -4,8 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Lantai extends Model
+class Floors extends Model
 {
-    protected $table = 'lantai';
+    protected $table = 'floors';
     //
 }

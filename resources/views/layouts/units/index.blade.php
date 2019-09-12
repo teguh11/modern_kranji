@@ -17,14 +17,14 @@
         serverSide: true,
         ajax: '{{route('units.data')}}',
         columns: [
-            {data:'no_unit', name: 'no_unit'},
-            {data:'nama_unit', name: 'nama_unit'},
-            {data: 'tipe_unit', name: 'tipe_unit'},
-            {data:'lantai', name: 'lantai'},
-            {data:'luas', name: 'luas'},
-            {data: 'harga_pengikatan', name: 'harga_pengikatan'},
-            {data:'jumlah_unit', name: 'jumlah_unit'},
-            {data: 'stock_unit', name: 'stock_unit'},
+            {data:'unit_number', name: 'unit_number'},
+            {data:'unit_name', name: 'unit_name'},
+            {data: 'unit_type_id', name: 'unit_type_id'},
+            {data:'floor_id', name: 'floor_id'},
+            {data:'large', name: 'large'},
+            {data: 'price', name: 'price'},
+            {data:'unit_total', name: 'unit_total'},
+            {data: 'unit_stock', name: 'unit_stock'},
             {data: 'action', name: 'action'},
         ]
       });
