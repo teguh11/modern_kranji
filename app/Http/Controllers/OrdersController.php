@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\AvailableStatus;
+use App\Clients;
 use App\Orders;
 use App\Pembeli;
 use App\Units;
+use App\UnitTypes;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,15 +35,24 @@ class OrdersController extends Controller
     {
         // $orders = Orders::all(['no_order', 'pembeli_id', 'user_id', 'nominal', 'unit_id', 'payment_method', 'payment_date', 'refundable_status']);
         $orders = DB::table('orders')
-            ->select('no_order', 'pembeli.nama as pembeli', 'users.nama as user', 'nominal', 'unit.nama as unit', 'payment_method', 'payment_date', 'refundable_status')
-            ->join('pembeli', 'orders.pembeli_id', '=', 'pembeli.id')
+            ->select('orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.unit_name as unit_name', 
+            'unit.large as large', 'unit.price as price', 'unit_types.name as unit_type', 'floors.name as floor', 'available_status.name as status')
+            ->join('clients', 'orders.client_id', '=', 'clients.id')
             ->join('users', 'orders.user_id', '=', 'users.id')
             ->join('unit', 'orders.unit_id', '=', 'unit.id')
+            ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
+            ->join('floors', 'unit.floor_id', '=', 'floors.id')
+            ->join('available_status', 'orders.available_status_id', '=', 'available_status.id')
             ->get();
         return DataTables::of($orders)->addColumn('action', function($order)
         {
-            return '<a href="'.route('pembeli.update.form',['id' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
-        })->make(true);
+            return '<a href="'.route('orders.edit',['id' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+        })
+        ->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
+        // ->editColumn('price', function($order){
+        //     return number_format($price, '0', ',', ".");
+        // })
+        ->make(true);
         //
     }
 
@@ -52,10 +64,16 @@ class OrdersController extends Controller
     public function create()
     {
         //
-        $units = Units::where('status', 1)->get();
-        $pembelis = Pembeli::where('status', 1)->get();
-        $users = User::all();
-        return view('layouts.orders.form', ['type' => 'create', 'units' => $units, 'pembelis' => $pembelis, 'users' => $users]);
+        $options = [
+            'type' => 'create',
+            'units' => Units::all(),
+            'clients' => Clients::all(),
+            'users' => User::all(),
+            'units' => Units::all(),
+            'available_statuss' => AvailableStatus::all(),
+        ];
+
+        return view('layouts.orders.form', $options);
     }
 
     /**
@@ -66,6 +84,14 @@ class OrdersController extends Controller
      */
     public function store(Request $request)
     {
+        DB::table('orders')->insert([
+            'order_number' => rand(1, 1000),
+            'client_id' => $request->client,
+            'user_id' => $request->user,
+            'unit_id' => $request->unit,
+            'available_status_id' => $request->available_status,
+        ]);
+        return redirect(route('orders.index'));
         //
     }
 
@@ -86,8 +112,20 @@ class OrdersController extends Controller
      * @param  \App\Orders  $orders
      * @return \Illuminate\Http\Response
      */
-    public function edit(Orders $orders)
+    public function edit(Request $request, $id)
     {
+        //
+        $options = [
+            'type' => 'update',
+            'units' => Units::all(),
+            'clients' => Clients::all(),
+            'users' => User::all(),
+            'units' => Units::all(),
+            'available_statuss' => AvailableStatus::all(),
+            'data' => Orders::where("id", $id)->first()
+        ];
+
+        return view('layouts.orders.form', $options);
         //
     }
 
@@ -98,9 +136,18 @@ class OrdersController extends Controller
      * @param  \App\Orders  $orders
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Orders $orders)
+    public function update(Request $request, $id)
     {
-        //
+        DB::table('orders')
+        ->where('id', $id)
+        ->update([
+            'client_id' => $request->client,
+            'user_id' => $request->user,
+            'unit_id' => $request->unit,
+            'available_status_id' => $request->available_status,
+        ]);
+        return redirect(route('orders.index'));
+
     }
 
     /**

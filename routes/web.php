@@ -29,3 +29,7 @@ Route::get('/orders/show/data', 'OrdersController@data')->name('orders.data');
 
 Route::resource('users','UsersController');
 Route::get('/users/show/data', 'UsersController@data')->name('users.data');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');

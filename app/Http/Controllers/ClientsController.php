@@ -124,9 +124,7 @@ class ClientsController extends Controller
                 'address' => $request->address
             ]);
 
-        if($update){
-            return redirect(route('clients.index'));
-        }
+        return redirect(route('clients.index'));
     }
 
     /**

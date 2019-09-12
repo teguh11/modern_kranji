@@ -83,9 +83,15 @@ class UnitsController extends Controller
      * @param  \App\Units  $units
      * @return \Illuminate\Http\Response
      */
-    public function show(Units $units)
+    public function show(Request $request, $id)
     {
-        dd("show");
+        $unit = DB::table('unit')
+        ->select('unit.unit_name', 'unit.large as large', 'unit_types.name as unit_type_name', 'floors.name as floor', 'unit.price as price')
+        ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
+        ->join('floors', 'unit.floor_id', '=', 'floors.id')
+        ->where("unit.id", "=", $id)
+        ->first();
+        echo json_encode($unit);
         //
     }
 
@@ -114,7 +120,7 @@ class UnitsController extends Controller
     public function update(UnitRequest $request, $id)
     {
         $request->validated();
-        $update = DB::table("unit")
+        DB::table("unit")
             ->where('id', $id)
             ->update([
                 'unit_number' => str_replace(",","", $request->unit_number),
@@ -127,9 +133,7 @@ class UnitsController extends Controller
                 'unit_stock' => str_replace(",","", $request->unit_total),
                 ]);
 
-        if($update){
-            return redirect(route('units.index'));
-        }
+        return redirect(route('units.index'));
     }
 
     /**

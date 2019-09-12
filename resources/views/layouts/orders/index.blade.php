@@ -12,14 +12,15 @@
         serverSide: true,
         ajax: '{{route('orders.data')}}',
         columns: [
-            {data:'no_order', name: 'no_order'},
-            {data:'pembeli', name: 'pembeli'},
-            {data:'user', name: 'user'},
-            {data: 'nominal', name: 'nominal'},
-            {data:'unit', name: 'unit'},
-            {data:'payment_method', name: 'payment_method'},
-            {data:'payment_date', name: 'payment_date'},
-            {data: 'refundable_status', name: 'refundable_status'},
+            {data:'order_number', name: 'order_number'},
+            {data:'client_name', name: 'client_name'},
+            {data:'user_name', name: 'user_name'},
+            {data: 'unit_name', name: 'unit_name'},
+            {data:'large', name: 'large'},
+            {data:'price', name: 'price'},
+            {data:'unit_type', name: 'unit_type'},
+            {data: 'floor', name: 'floor'},
+            {data: 'status', name: 'status'},
             {data: 'action', name: 'action'},
             
         ]
@@ -49,15 +50,16 @@
           <table id="list-pembeli" class="table table-bordered table-striped">
             <thead>
             <tr>
-              <th>Id</th>
-              <th>Nama</th>
-              <th>Email</th>
-              <th>Handphone</th>
+              <th>Order Number</th>
+              <th>Nama Konsumen</th>
+              <th>Nama user</th>
+              <th>Unit</th>
+              <th>Luas</th>
+              <th>Harga</th>
+              <th>Tipe</th>
+              <th>Lantai</th>
+              <th>Status</th>
               <th>Action</th>
-              <th>Id</th>
-              <th>Nama</th>
-              <th>Email</th>
-              <th>Handphone</th>
             </tr>
             </thead>
           </table>
