@@ -11,7 +11,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class RolesController extends Controller
 {
-    use Authorizable;
+    // use Authorizable;
 
     public function __construct()
     {
