@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Authorizable;
 use App\Floors;
 use App\Units;
 use App\UnitTypes;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class UnitsController extends Controller
 {
+    use Authorizable;
+    
     public function __construct()
     {
         $this->middleware(['auth']);

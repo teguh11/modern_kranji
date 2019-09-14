@@ -7,8 +7,8 @@
           <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
-          <p>Alexander Pierce</p>
-          <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+          <p>{{strtoupper(auth()->user()->name)}}</p>
+          {{-- <a href="#"><i class="fa fa-circle text-success"></i> Online</a> --}}
         </div>
       </div>
       <!-- search form -->
@@ -28,24 +28,17 @@
         <li><a href="{{route('clients.index')}}"><i class="fa fa-users"></i> <span>CUSTOMERS</span></a></li>
         <li><a href="{{route('units.index')}}"><i class="fa fa-users"></i> <span>UNITS</span></a></li>
         <li><a href="{{route('orders.index')}}"><i class="fa fa-users"></i> <span>ORDERS</span></a></li>
-        <li><a href="{{route('users.index')}}"><i class="fa fa-users"></i> <span>USERS</span></a></li>
+        <li><a href="{{route('payment-history.index')}}"><i class="fa fa-users"></i> <span>HISTORY TRANSAKSI</span></a></li>
         <li class="treeview">
           <a href="#">
             <i class="fa fa-files-o"></i>
             <span>MASTER DATA</span>
           </a>
           <ul class="treeview-menu">
-            {{-- <li><a href="{{route('tipe-unit.sindex')}}"><i class="fa fa-circle-o"></i> Tipe Unit</a></li> --}}
-            <li><a href="pages/layout/boxed.html"><i class="fa fa-circle-o"></i> Boxed</a></li>
-            <li><a href="pages/layout/fixed.html"><i class="fa fa-circle-o"></i> Fixed</a></li>
-            <li><a href="pages/layout/collapsed-sidebar.html"><i class="fa fa-circle-o"></i> Collapsed Sidebar</a></li>
+            <li><a href="{{route('users.index')}}"><i class="fa fa-users"></i> <span>USERS</span></a></li>
+            <li><a href="{{route('roles.index')}}"><i class="fa fa-circle-o"></i>ROLES</a></li>
           </ul>
         </li>
-        <li><a href="https://adminlte.io/docs"><i class="fa fa-book"></i> <span>Documentation</span></a></li>
-        <li class="header">LABELS</li>
-        <li><a href="#"><i class="fa fa-circle-o text-red"></i> <span>Important</span></a></li>
-        <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> <span>Warning</span></a></li>
-        <li><a href="#"><i class="fa fa-circle-o text-aqua"></i> <span>Information</span></a></li>
       </ul>
     </section>
     <!-- /.sidebar -->

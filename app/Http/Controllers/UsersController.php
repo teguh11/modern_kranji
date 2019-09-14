@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Authorizable;
 use App\Http\Requests\UserRequest;
 use App\ModelHasRoles;
 use App\Roles;
@@ -13,6 +14,12 @@ use Yajra\DataTables\Facades\DataTables;
 
 class UsersController extends Controller
 {
+    use Authorizable;
+    public function __construct()
+    {
+        $this->middleware(['auth']);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -42,7 +49,6 @@ class UsersController extends Controller
     {
         $roles = Roles::all();
         return view('layouts.users.form', ['type'=> 'create', 'roles' => $roles]);
-        //
     }
 
     /**

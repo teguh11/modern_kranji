@@ -9,11 +9,11 @@
         $.get('/units/'+id, function(data) {
           json_data = JSON.parse(data)
           console.log(json_data)
-          $("#unit_name").html(json_data.unit_name)
-          $("#unit_type").html(json_data.unit_type_name)
-          $("#floor").html(json_data.floor)
-          $("#large").html(json_data.large)
-          $("#price").html("Rp "+number_format(json_data.price, "0", ",", "."))
+          $(".unit_name-detail").html(json_data.unit_name)
+          $(".unit_type-detail").html(json_data.unit_type_name)
+          $(".floor-detail").html(json_data.floor)
+          $(".large-detail").html(json_data.large)
+          $(".price-detail").html("Rp "+number_format(json_data.price, "0", ",", "."))
         })
     }
 
@@ -113,13 +113,12 @@
             </div>
             <div class="row">
               <div class="col-md-6">
-                
                 <ul class="list-group">
-                    <li class="list-group-item">Nama Unit : <b><div id="unit_name"></div></b></li>
-                    <li class="list-group-item">Tipe Unit : <b><div id="unit_type"></div></b></li>
-                    <li class="list-group-item">Luas : <b><div id="large"></div></b></li>
-                    <li class="list-group-item">Lantai : <b><div id="floor"></div></b></li>
-                    <li class="list-group-item">Harga : <b><div id="price"></div></b></li>
+                    <li class="list-group-item">Nama Unit : <b><div class="unit_name-detail"></div></b></li>
+                    <li class="list-group-item">Tipe Unit : <b><div class="unit_type-detail"></div></b></li>
+                    <li class="list-group-item">Luas : <b><div class="large-detail"></div></b></li>
+                    <li class="list-group-item">Lantai : <b><div class="floor-detail"></div></b></li>
+                    <li class="list-group-item">Harga : <b><div class="price-detail"></div></b></li>
                   </ul>
               </div>
             </div>

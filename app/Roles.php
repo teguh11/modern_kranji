@@ -2,13 +2,9 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Models\Role;
 
-class Roles extends Model
-{
-    protected $fillable = [
-        'role_id', 'model_type', 'model_id',
-    ];
-   
+class Roles extends Role
+{   
     //
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Authorizable;
 use App\AvailableStatus;
 use App\Clients;
 use App\Orders;
@@ -15,6 +16,13 @@ use Yajra\DataTables\DataTables;
 
 class OrdersController extends Controller
 {
+    use Authorizable;
+
+    public function __construct()
+    {
+        $this->middleware(['auth']);
+    }
+    
     /**
      * Display a listing of the resource.
      *
@@ -46,12 +54,9 @@ class OrdersController extends Controller
             ->get();
         return DataTables::of($orders)->addColumn('action', function($order)
         {
-            return '<a href="'.route('orders.edit',['id' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+            return '<a href="'.route('orders.edit',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
         })
         ->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
-        // ->editColumn('price', function($order){
-        //     return number_format($price, '0', ',', ".");
-        // })
         ->make(true);
         //
     }
@@ -63,7 +68,6 @@ class OrdersController extends Controller
      */
     public function create()
     {
-        //
         $options = [
             'type' => 'create',
             'units' => Units::all(),
@@ -114,7 +118,6 @@ class OrdersController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        //
         $options = [
             'type' => 'update',
             'units' => Units::all(),
@@ -126,7 +129,6 @@ class OrdersController extends Controller
         ];
 
         return view('layouts.orders.form', $options);
-        //
     }
 
     /**

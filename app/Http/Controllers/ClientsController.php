@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Authorizable;
 use App\Clients;
 use App\Http\Requests\ClientRequest;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Yajra\Datatables\Datatables;
 
 class ClientsController extends Controller
 {
+    use Authorizable;
+
     public function __construct()
     {
         $this->middleware(['auth']);
@@ -32,7 +35,7 @@ class ClientsController extends Controller
         return Datatables::of($clients)
         ->addColumn('action', function($client)
         {
-            return '<a href="'.route('clients.edit',['clients' => $client->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+            return '<a href="'.route('clients.edit',['client' => $client->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
         })
         ->make(true);
     }
@@ -45,7 +48,6 @@ class ClientsController extends Controller
     public function create()
     {
         return view('layouts.clients.form', ['type' => 'create']);
-        //
     }
 
     /**
