@@ -7,7 +7,7 @@
   <script src="{{asset('adminlte/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js')}}"></script>
   <script>
     $(function () {
-      $('#list-units').DataTable({
+      var oTable = $('#list-units').DataTable({
         scrollX : true,
         // scrollCollapse : true,
         dom: "<'row'<'col-xs-12'<'col-sm-6'l><'col-sm-6'>>r>"+
@@ -15,19 +15,34 @@
             "<'row'<'col-xs-12'<'col-xs-6'i><'col-xs-6'p>>>",
         processing: true,
         serverSide: true,
-        ajax: '{{route('units.data')}}',
+        ajax: {
+          url : '{{route('units.data')}}',
+          data : function(d){
+            d.unit_type = $("#unit_type").val()
+            d.floor = $("#floor").val()
+            d.tower = $("#tower").val()
+            d.view = $("#view").val()
+          }
+        },
         columns: [
             {data:'unit_number', name: 'unit_number'},
             {data:'unit_name', name: 'unit_name'},
-            {data: 'unit_type_id', name: 'unit_type_id'},
-            {data:'floor_id', name: 'floor_id'},
+            {data: 'unit_type', name: 'unit_type'},
+            {data:'floor', name: 'floor'},
+            {data: 'tower', name: 'tower'},
             {data:'large', name: 'large'},
             {data: 'price', name: 'price'},
-            {data:'unit_total', name: 'unit_total'},
-            {data: 'unit_stock', name: 'unit_stock'},
             {data: 'action', name: 'action'},
         ]
       });
+
+      $("#advance-search").submit(function(e) {
+        oTable.draw();
+        e.preventDefault();
+      })
+      $("#reset").click(function () {
+        oTable.draw();
+      })
     })
   </script>
 
@@ -39,7 +54,6 @@
         <div class="box collapsed-box">
           <div class="box-header with-border">
             <h3 class="box-title">Advance Search</h3>
-  
             <div class="box-tools pull-right">
               <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                 <i class="fa fa-minus"></i></button>
@@ -48,7 +62,67 @@
             </div>
           </div>
           <div class="box-body">
-            Start creating your amazing application!
+            <form method="get" id="advance-search" action="#">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Tipe</label>
+                    <select class="form-control" name="unit_type" id="unit_type">
+                      <option value=""></option>
+                      @foreach ($tipe_units as $tipe_unit)
+                        <option value="{{$tipe_unit->id}}" {{old('unit_type') == $tipe_unit->id ? "selected" : isset($data) && $data->unit_type_id == $tipe_unit->id ? "selected" : ""}}>{{$tipe_unit->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Lantai</label>
+                    <select class="form-control" name="floor" id="floor">
+                      <option value=""></option>
+                      @foreach ($lantais as $lantai)
+                        <option value="{{$lantai->id}}" {{old('floor') == $lantai->id ? "selected" : isset($data) && $data->floor_id == $lantai->id ? "selected" : ""}}>{{$lantai->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Tower</label>
+                    <select class="form-control" name="tower" id="tower">
+                      <option value=""></option>
+                      @foreach ($towers as $tower)
+                        <option value="{{$tower->id}}" {{old('tower') == $tower->id ? "selected" : isset($data) && $data->tower_id == $tower->id ? "selected" : ""}}>{{$tower->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Views</label>
+                    <select class="form-control" name="view" id="view">
+                      <option value=""></option>
+                      @foreach ($views as $view)
+                        <option value="{{$view->id}}" {{old('view') == $view->id ? "selected" : isset($data) && $data->view_id == $view->id ? "selected" : ""}}>{{$view->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                  <button type="reset" class="btn btn-primary" id="reset">Reset</button>
+                  
+                </div>
+              </div>
+            </form>
           </div>
           <!-- /.box-body -->
           <div class="box-footer">
@@ -79,10 +153,9 @@
                 <th>Nama Unit</th>
                 <th>Tipe Unit</th>
                 <th>Lantai</th>
+                <th>Tower</th>
                 <th>Luas</th>
                 <th>Harga</th>
-                <th>Jumlah Unit</th>
-                <th>Stock Unit</th>
                 <th>Action</th>
               </tr>
             </thead>

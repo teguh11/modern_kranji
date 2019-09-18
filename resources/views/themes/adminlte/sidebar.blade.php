@@ -32,6 +32,19 @@
         <li class="treeview">
           <a href="#">
             <i class="fa fa-files-o"></i>
+            <span>Orders</span>
+          </a>
+          <ul class="treeview-menu">
+            <li><a href="{{route('users.index')}}"><i class="fa fa-users"></i> <span>Reserved</span></a></li>
+            <li><a href="{{route('roles.index')}}"><i class="fa fa-circle-o"></i>Booking Fee</a></li>
+            <li><a href="{{route('users.index')}}"><i class="fa fa-users"></i> <span>DP</span></a></li>
+            <li><a href="{{route('roles.index')}}"><i class="fa fa-circle-o"></i>Cash Bertahap</a></li>
+            <li><a href="{{route('roles.index')}}"><i class="fa fa-circle-o"></i>Lunas</a></li>
+          </ul>
+        </li>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-files-o"></i>
             <span>MASTER DATA</span>
           </a>
           <ul class="treeview-menu">

@@ -2,11 +2,17 @@
 
 namespace App;
 
-use Spatie\Permission\Traits\HasRoles;
+use App\Scopes\StatusScope;
 use Illuminate\Database\Eloquent\Model;
 
 class Clients extends Model
 {
-    use HasRoles;
     protected $table = 'clients';
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new StatusScope);
+    }
 }

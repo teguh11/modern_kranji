@@ -11,11 +11,11 @@ use Yajra\DataTables\Facades\DataTables;
 
 class RolesController extends Controller
 {
-    // use Authorizable;
+    use Authorizable;
 
     public function __construct()
     {
-        $this->middleware(['auth']);
+        $this->middleware(['auth', 'checkroles']);
     }
 
     /**
@@ -87,6 +87,7 @@ class RolesController extends Controller
      */
     public function show(Roles $roles)
     {
+        dd("show");
         //
     }
 
@@ -122,5 +123,9 @@ class RolesController extends Controller
     public function destroy(Roles $roles)
     {
         //
+    }
+
+    public function test()
+    {
     }
 }

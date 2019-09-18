@@ -43,7 +43,7 @@ $(function(){
           <?php endif;?>
           <div class="box-body">
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="form-group @error('unit_name') has-error @enderror">
                   <label for="unit_name">Nama Unit</label>
                   <input type="text" class="form-control" id="unit_name" placeholder="Nama" name="unit_name" value="{{old('unit_name') == "" ? (isset($data)?$data->unit_name : "") : old('unit_name')}}">
@@ -54,7 +54,7 @@ $(function(){
                   @enderror
                 </div>      
               </div>
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="form-group @error('unit_number') has-error @enderror">
                   <label for="unit_number">No Unit</label>
                   <input type="text" class="form-control" id="unit_number" placeholder="" name="unit_number" value="{{old('unit_number') == '' ? (isset($data)?$data->unit_number:"") : old('unit_number')}}">
@@ -65,10 +65,7 @@ $(function(){
                   @enderror
                 </div>
               </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="form-group">
                     <label>Tipe Unit</label>
                     <select class="form-control" name="unit_type">
@@ -78,7 +75,10 @@ $(function(){
                     </select>
                   </div>
               </div>
-              <div class="col-md-6">
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
                 <div class="form-group">
                   <label>Lantai</label>
                   <select class="form-control" name="floor">
@@ -88,6 +88,27 @@ $(function(){
                   </select>
                 </div>
               </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Tower</label>
+                  <select class="form-control" name="tower">
+                    @foreach ($towers as $tower)
+                      <option value="{{$tower->id}}" {{old('tower') == $tower->id ? "selected" : isset($data) && $data->tower_id == $tower->id ? "selected" : ""}}>{{$tower->name}}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                    <label>Views</label>
+                    <select class="form-control" name="view">
+                      @foreach ($views as $view)
+                        <option value="{{$view->id}}" {{old('view') == $view->id ? "selected" : isset($data) && $data->view_id == $view->id ? "selected" : ""}}>{{$view->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+              </div>
+
             </div>
             <div class="row">
               <div class="col-md-4">

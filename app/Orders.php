@@ -2,12 +2,19 @@
 
 namespace App;
 
+use App\Scopes\StatusScope;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Permission\Traits\HasRoles;
 
 class Orders extends Model
 {
-    use HasRoles;
     protected $tables = 'orders';
     //
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new StatusScope);
+    }
 }
+

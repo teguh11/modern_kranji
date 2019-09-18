@@ -32,6 +32,7 @@ class ClientRequest extends FormRequest
             'telp_kantor' => 'required',
             'handphone' => 'required',
             'email' => 'required|email',
+            'identity_file' => 'required|image'
         ];
     }
 }

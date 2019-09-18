@@ -12,7 +12,7 @@
         <?php
           $action = $type == 'update' ? route('clients.update', $data->id): route('clients.store');
         ?>
-        <form role="form" action="{{$action}}" method="POST">
+        <form role="form" action="{{$action}}" method="POST"  enctype="multipart/form-data">
           @csrf
           <?php if($type=='update'):?>
             @method('PUT')
@@ -44,7 +44,7 @@
             </div>
 
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="form-group @error('identity_no') has-error @enderror">
                   <label for="identity_no">No KTP</label>
                   <input type="text" class="form-control" id="identity_no" placeholder="" name="identity_no" value="{{old('identity_no') == ''? (isset($data)?$data->identity_no:"") : old('identity_no')}}">
@@ -55,7 +55,18 @@
                   @enderror
                 </div>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-4">
+                  <div class="form-group @error('identity_file') has-error @enderror">
+                    <label for="identity_no">No KTP</label>
+                    <input type="file" class="form-control" id="identity_file" placeholder="" name="identity_file" />
+                    @error('identity_file')
+                      <span class="help-block" role="alert">
+                        <strong>{{ $message }}</strong>
+                      </span>
+                    @enderror
+                  </div>
+                </div>
+              <div class="col-md-4">
                 <div class="form-group @error('npwp') has-error @enderror">
                   <label for="npwp">NPWP</label>
                   <input type="text" class="form-control" id="npwp" placeholder="" name="npwp" value="{{old('npwp') == '' ? (isset($data)?$data->npwp:"") : old('npwp')}}">

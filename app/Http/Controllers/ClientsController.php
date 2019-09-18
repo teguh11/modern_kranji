@@ -58,24 +58,23 @@ class ClientsController extends Controller
      */
     public function store(ClientRequest $request)
     {
-        $validateRequest = $request->validated();
-
-        $insert = DB::table("pembeli")->insert([
+        $file = $request->file('identity_file')->store(env("CLIENT_DIR").date("Y/m/d"));
+        $request->validated();
+        $insert = DB::table("clients")->insert([
             'user_id' => Auth::user()->id,
-            'order_number' => "CL_". Auth::user()->id."_".date("YmdHis"),
-            'name' => $request->nama,
+            'order_number' => "CL_". Auth::user()->id."_".strtotime(date("YmdHis")),
+            'name' => $request->name,
             'email' => $request->email,
-            'no_ktp' => $request->no_ktp,
+            'identity_no' => $request->identity_no,
+            'identity_file' => $file,
             'npwp' => $request->npwp,
             'telp_rumah' => $request->telp_rumah,
             'telp_kantor' => $request->telp_kantor,
             'handphone' => $request->handphone,
-            'alamat' => $request->alamat
+            'address' => $request->address
         ]);
 
-        if($insert){
-            return redirect(route('pembeli'));
-        }
+        return redirect(route('clients.index'));
     }
 
     /**
@@ -111,6 +110,7 @@ class ClientsController extends Controller
      */
     public function update(ClientRequest $request, $id)
     {
+        $file = $request->file('identity_file')->store(env("CLIENT_DIR").date("Y/m/d"));
         $validateRequest = $request->validated();
         $update = DB::table("clients")
             ->where('id', $id)
@@ -119,6 +119,7 @@ class ClientsController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'identity_no' => $request->identity_no,
+                'identity_file' => $file,
                 'npwp' => $request->npwp,
                 'telp_rumah' => $request->telp_rumah,
                 'telp_kantor' => $request->telp_kantor,

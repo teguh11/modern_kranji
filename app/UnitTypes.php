@@ -2,12 +2,17 @@
 
 namespace App;
 
-use Spatie\Permission\Traits\HasRoles;
+use App\Scopes\StatusScope;
 use Illuminate\Database\Eloquent\Model;
 
 class UnitTypes extends Model
 {
-    use HasRoles;
     protected $table = 'unit_types';
     //
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new StatusScope);
+    }
 }
