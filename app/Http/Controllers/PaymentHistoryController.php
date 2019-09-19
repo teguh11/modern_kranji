@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Authorizable;
+use App\Http\Requests\PaymentHistoryRequest;
 use App\Orders;
 use App\PaymentHistories;
+use App\PaymentStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -24,17 +26,6 @@ class PaymentHistoryController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    const PAYMENT_METHOD_CASH = 0;
-    const PAYMENT_METHOD_CASH_NAME = "CASH";
-    const PAYMENT_METHOD_TRANSFER = 1;
-    const PAYMENT_METHOD_TRANSFER_NAME = "TRANSFER";
-
-    const STATUS_NOT_REFUNDABLE = 0;
-    const STATUS_NOT_REFUNDABLE_NAME = "NOT REFUNDABLE";
-    const STATUS_REFUNDABLE = 1;
-    const STATUS_REFUNDABLE_NAME = "REFUNDABLE";
-
-
     public function index()
     {
         return view('layouts.payment_history.index');
@@ -43,12 +34,13 @@ class PaymentHistoryController extends Controller
 
     public function data()
     {
+        // dd(\App\PaymentHistories::PAYMENT_METHOD[1]);
         $paymentHistories = DB::table('payment_histories')
         ->select(
             'payment_histories.id',
             'payment_histories.payment_number',
             'payment_histories.nominal',
-            'payments.name as payment_name',
+            'payment_status.name as payment_status',
             'payment_histories.payment_method',
             'payment_histories.payment_date',
             'payment_histories.refundable_status',
@@ -56,14 +48,17 @@ class PaymentHistoryController extends Controller
         )
         ->join('orders', 'payment_histories.order_id', '=', 'orders.id')
         ->join('unit', 'orders.unit_id', '=', 'unit.id')
-        ->join('payments', 'payment_histories.payment_id', '=', 'payments.id')
+        ->join('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
         ->get();
         return DataTables::of($paymentHistories)
         ->addColumn('action', function($paymentHistory)
         {
             return '<a href="'.route('payment-history.edit',['id' => $paymentHistory->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
         })
-        ->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
+        ->editColumn('nominal', '{{number_format($nominal, "0", ",", ".")}}')
+        ->editColumn('payment_method', '{{App\PaymentHistories::PAYMENT_METHOD[$payment_method]}}')
+        ->editColumn('status', '{{App\PaymentHistories::STATUS[$status]}}')
+        ->editColumn('refundable_status', '{{App\PaymentHistories::REFUNDABLE_STATUS[$refundable_status]}}')
         ->make(true);
         # code...
     }
@@ -73,11 +68,20 @@ class PaymentHistoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         $options = [
             'type' => 'create',
-            'orders' => Orders::all()
+            'order' => DB::table('orders')
+                        ->select('orders.id as order_id', 'unit.unit_name as unit_name', 'clients.name as client_name')
+                        ->join('unit','orders.unit_id', '=', 'unit.id')
+                        ->join('clients','orders.client_id', '=', 'clients.id')
+                        ->where('orders.id', '=', $request->query('order'))
+                        ->first(),
+            'payment_status' => PaymentStatus::all(),
+            'payment_methods' => PaymentHistories::PAYMENT_METHOD,
+            'status' => PaymentHistories::STATUS,
+            'refundable_status' => PaymentHistories::REFUNDABLE_STATUS
         ];
         return view('layouts.payment_history.form', $options);
         //
@@ -89,8 +93,24 @@ class PaymentHistoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(PaymentHistoryRequest $request)
     {
+        $request->validated();
+        $pr = DB::table("payment_histories")->insert([
+            'order_id' => $request->order_id,
+            'user_id' => auth()->user()->id,
+            'payment_status_id' => $request->payment_status,
+            'payment_number' => 'PN_'.$request->order_id."_".auth()->user()->id."_".rand(0, 9999)."_".strtotime(date('YmdHis')),
+            'nominal' => str_replace(",","", $request->nominal),
+            'payment_method' => $request->payment_method,
+            'payment_date' => date('Y-m-d H:i:s'),
+            'status' => $request->status,
+            'refundable_status' => $request->refundable_status
+        ]);
+
+        if($pr){
+            return redirect(route('orders.index'));
+        }
         //
     }
 

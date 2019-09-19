@@ -8,6 +8,7 @@
   <script>
     $(function () {
       $('#list-pembeli').DataTable({
+        scrollX : true,
         processing: true,
         serverSide: true,
         ajax: '{{route('orders.data')}}',
@@ -47,7 +48,7 @@
 
         <!-- /.box-header -->
         <div class="box-body">
-          <table id="list-pembeli" class="table table-bordered table-striped">
+          <table id="list-pembeli" class="table table-bordered table-striped" style="width:100%">
             <thead>
             <tr>
               <th>Order Number</th>

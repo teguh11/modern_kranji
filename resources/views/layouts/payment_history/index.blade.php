@@ -14,11 +14,11 @@
         columns: [
             {data:'payment_number', name: 'payment_number'},
             {data:'nominal', name: 'nominal'},
-            {data:'payment_name', name: 'payment_name'},
+            {data:'payment_status', name: 'payment_status'},
             {data:'payment_method', name: 'payment_method'},
             {data:'payment_date', name: 'payment_date'},
-            {data:'refundable_status', name: 'refundable_status'},
             {data:'status', name: 'status'},
+            {data:'refundable_status', name: 'refundable_status'},
             {data: 'action', name: 'action'}
         ]
       });
@@ -32,7 +32,7 @@
     <div class="col-xs-12">
       <div class="box">
         <div class="box-header">
-          <h3 class="box-title">Data Pembeli</h3>
+          <h3 class="box-title">History Transaksi</h3>
         </div>
         <div class="box-body">
           <div class="row">
@@ -52,8 +52,8 @@
               <th>Pembayaran Untuk</th>
               <th>Cara Pembayaran</th>
               <th>Tanggal Pembayaran</th>
-              <th>Satus Refund</th>
               <th>Status</th>
+              <th>Satus Refund</th>
               <th>Action</th>
             </tr>
             </thead>

@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Scopes\StatusScope;
+use App\Scopes\UserScope;
 use Illuminate\Database\Eloquent\Model;
 
 class Orders extends Model
@@ -15,6 +16,7 @@ class Orders extends Model
         parent::boot();
 
         static::addGlobalScope(new StatusScope);
+        static::addGlobalScope(new UserScope);
     }
 }
 

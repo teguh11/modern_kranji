@@ -1,18 +1,30 @@
 @extends('themes.adminlte.app')
+@push('scripts')
+<script src="{{asset('adminlte/bower_components/cleave.js/dist/cleave.min.js')}}"></script>
+<script>
+$(function(){
+  new Cleave('#nominal', {
+    numeral: true,
+    numeralThousandsGroupStyle: 'thousand'
+  });
+})
+</script>
+@endpush
 
 @section('content')
   <div class="row">
     <div class="col-md-12">
       <div class="box box-primary">
         <div class="box-header with-border">
-          <h3 class="box-title">Data Pembeli</h3>
+          <h3 class="box-title">Payment</h3>
         </div>
         <!-- /.box-header -->
         <!-- form start -->
         <?php
-          $action = $type == 'update' ? route('clients.update', $data->id): route('clients.store');
+          $action = $type == 'update' ? route('payment-history.update', $data->id): route('payment-history.store');
         ?>
         <form role="form" action="{{$action}}" method="POST">
+          <input type="hidden" name="order_id" value="{{$order->order_id}}">
           @csrf
           <?php if($type=='update'):?>
             @method('PUT')
@@ -21,19 +33,34 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
-                  <label>Order</label>
-                  <select class="form-control" name="order">
-                    @foreach ($orders as $order)
-                      <option value="{{$order->id}}" {{old('order') == $order->id ? "selected" : isset($data) && $data->order_id == $order->id ? "selected" : ""}}>{{$order->name}}</option>
-                    @endforeach
-                  </select>
+                  <label>Unit name</label>
+                  <div class="form-control">
+                    <strong>{{$order->unit_name}}</strong>
+                  </div>
                 </div>
               </div>
+            </div>
+            <div class="row">
               <div class="col-md-6">
-                <div class="form-group @error('email') has-error @enderror">
-                  <label for="email">Email</label>
-                  <input type="email" class="form-control" id="email" placeholder="" name="email" value="{{old('email') == '' ? (isset($data)?$data->email:"") : old('email')}}">
-                  @error('email')
+                <div class="form-group">
+                  <label>Customer</label>
+                  <div class="form-control">
+                    <strong>{{$order->client_name}}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group @error('payment_status') has-error @enderror">
+                  <label for="payment_status">Payment for</label>
+                  <select name="payment_status" id="payment_status" class="form-control" >
+                    @foreach ($payment_status as $item)
+                        <option value="{{$item->id}}"  {{old('payment_status') == $item->id ? "selected" : isset($data) && $data->payment_status_id == $item->id ? "selected" : ""}}>{{$item->name}}</option>
+                    @endforeach
+                  </select>
+                  @error('payment_status')
                     <span class="help-block" role="alert">
                       <strong>{{ $message }}</strong>
                     </span>
@@ -44,21 +71,10 @@
 
             <div class="row">
               <div class="col-md-6">
-                <div class="form-group @error('identity_no') has-error @enderror">
-                  <label for="identity_no">No KTP</label>
-                  <input type="text" class="form-control" id="identity_no" placeholder="" name="identity_no" value="{{old('identity_no') == ''? (isset($data)?$data->identity_no:"") : old('identity_no')}}">
-                  @error('identity_no')
-                    <span class="help-block" role="alert">
-                      <strong>{{ $message }}</strong>
-                    </span>
-                  @enderror
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group @error('npwp') has-error @enderror">
-                  <label for="npwp">NPWP</label>
-                  <input type="text" class="form-control" id="npwp" placeholder="" name="npwp" value="{{old('npwp') == '' ? (isset($data)?$data->npwp:"") : old('npwp')}}">
-                  @error('npwp')
+                <div class="form-group @error('nominal') has-error @enderror">
+                  <label for="nominal">Nominal</label>
+                  <input type="text" class="form-control" id="nominal" placeholder="" name="nominal" value="{{old('nominal') == '' ? (isset($data)?$data->nominal:"") : old('nominal')}}">
+                  @error('nominal')
                     <span class="help-block" role="alert">
                       <strong>{{ $message }}</strong>
                     </span>
@@ -66,52 +82,58 @@
                 </div>
               </div>
             </div>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group @error('telp_rumah') has-error @enderror">
-                  <label for="telp_rumah">Telepon Rumah</label>
-                  <input type="text" class="form-control" id="telp_rumah" placeholder="" name="telp_rumah" value="{{old('telp_rumah') == '' ? (isset($data)?$data->telp_rumah:"") : old('telp_rumah')}}">
-                </div>
-                @error('telp_rumah')
-                  <span class="help-block" role="alert">
-                    <strong>{{ $message }}</strong>
-                  </span>
-                @enderror
-              </div>
-              <div class="col-md-4">
-                <div class="form-group @error('telp_kantor') has-error @enderror">
-                  <label for="telp_kantor">Telepon Kantor</label>
-                  <input type="text" class="form-control" id="telp_kantor" placeholder="" name="telp_kantor" value="{{old('telp_kantor') == '' ? (isset($data)?$data->telp_kantor:"") : old('telp_kantor')}}">
-                  @error('telp_kantor')
-                    <span class="help-block" role="alert">
-                      <strong>{{ $message }}</strong>
-                    </span>
-                  @enderror
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group @error('handphone') has-error @enderror">
-                  <label for="handphone">Handphone</label>
-                  <input type="text" class="form-control" id="handphone" placeholder="" name="handphone" value="{{old('handphone') == '' ? (isset($data)?$data->handphone:"") : old('handphone')}}">
-                  @error('handphone')
-                    <span class="help-block" role="alert">
-                      <strong>{{ $message }}</strong>
-                    </span>
-                  @enderror
-                </div>
-              </div>
-            </div>
+  
             <div class="row">
               <div class="col-md-6">
-                <div class="form-group @error('address') has-error @enderror">
-                  <label for="address">Alamat</label>
-                  <textarea name="address" id="address" cols="30" rows="10" class="form-control" >{{old('address') == '' ? (isset($data)?$data->address:"") : old('address')}}</textarea>
-                  @error('address')
+                <div class="form-group @error('payment_method') has-error @enderror">
+                  <label for="payment_method">Payment Method</label>
+                  <select name="payment_method" id="payment_method" class="form-control" >
+                    @foreach ($payment_methods as $id => $name)
+                        <option value="{{$id}}"  {{old('payment_method') == $id ? "selected" : isset($data) && $data->payment_method == $id ? "selected" : ""}}>{{$name}}</option>
+                    @endforeach
+                  </select>
+                  @error('payment_status')
                     <span class="help-block" role="alert">
                       <strong>{{ $message }}</strong>
                     </span>
                   @enderror
-                </div>
+                </div>  
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group @error('status') has-error @enderror">
+                  <label for="status">Can refund ?</label>
+                  <select name="status" id="status" class="form-control" >
+                    @foreach ($status as $id => $name)
+                        <option value="{{$id}}"  {{old('status') == $id ? "selected" : isset($data) && $data->status == $id ? "selected" : ""}}>{{$name}}</option>
+                    @endforeach
+                  </select>
+                  @error('status')
+                    <span class="help-block" role="alert">
+                      <strong>{{ $message }}</strong>
+                    </span>
+                  @enderror
+                </div>  
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group @error('refundable_status') has-error @enderror">
+                  <label for="refundable_status">Refund Status</label>
+                  <select name="refundable_status" id="refundable_status" class="form-control" >
+                    @foreach ($refundable_status as $id => $name)
+                        <option value="{{$id}}"  {{old('refundable_status') == $id ? "selected" : isset($data) && $data->refundable_status == $id ? "selected" : ""}}>{{$name}}</option>
+                    @endforeach
+                  </select>
+                  @error('refundable_status')
+                    <span class="help-block" role="alert">
+                      <strong>{{ $message }}</strong>
+                    </span>
+                  @enderror
+                </div>  
               </div>
             </div>
           </div>

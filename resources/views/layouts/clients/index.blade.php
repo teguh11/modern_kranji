@@ -8,6 +8,7 @@
   <script>
     $(function () {
       $('#list-pembeli').DataTable({
+        scrollX : true,
         processing: true,
         serverSide: true,
         ajax: '{{route('clients.data')}}',

@@ -9,6 +9,18 @@ class PaymentHistories extends Model
 {
     //
     protected $tables='payment_histories';
+    const PAYMENT_METHOD = [
+        'Cash',
+        'Transfer'
+    ];
+    const STATUS = [
+        'Not Refundable',
+        'Refundable'
+    ];
+    const REFUNDABLE_STATUS = [
+        'No',
+        'Yes'
+    ];
 
     protected static function boot()
     {

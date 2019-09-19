@@ -7,6 +7,7 @@ use App\AvailableStatus;
 use App\Clients;
 use App\Orders;
 use App\Pembeli;
+use App\Traits\ViewDataByLogin;
 use App\Units;
 use App\UnitTypes;
 use App\User;
@@ -17,6 +18,7 @@ use Yajra\DataTables\DataTables;
 class OrdersController extends Controller
 {
     use Authorizable;
+    use ViewDataByLogin;
 
     public function __construct()
     {
@@ -50,11 +52,14 @@ class OrdersController extends Controller
             ->join('unit', 'orders.unit_id', '=', 'unit.id')
             ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
             ->join('floors', 'unit.floor_id', '=', 'floors.id')
-            ->join('available_status', 'orders.available_status_id', '=', 'available_status.id')
-            ->get();
+            ->join('available_status', 'orders.available_status_id', '=', 'available_status.id');
+            $orders = $this->viewData($orders, 'orders.user_id');
+            $orders = $orders->get();
         return DataTables::of($orders)->addColumn('action', function($order)
         {
-            return '<a href="'.route('orders.edit',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+            return 
+            '<a href="'.route('orders.edit',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>
+             <a href="'.route('payment-history.create',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Bayar</a>';
         })
         ->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
         ->make(true);
