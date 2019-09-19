@@ -28,7 +28,7 @@ class UnitRequest extends FormRequest
             'unit_name' => 'required',
             'large' => 'required',
             'price' => 'required',
-            'unit_total' => 'required'
+            // 'unit_total' => 'required'
         ];
     }
 }

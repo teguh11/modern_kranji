@@ -70,6 +70,8 @@ class PaymentHistoryController extends Controller
      */
     public function create(Request $request)
     {
+        $payment_history = DB::table('payment_histories')->select('payment_status_id as id')->distinct()->where('order_id', '=', $request->query('order'))->get()->pluck('id');
+        $payment_status = DB::table('payment_status')->select('id', 'name')->whereNotIn('id', $payment_history->toArray())->get();
         $options = [
             'type' => 'create',
             'order' => DB::table('orders')
@@ -78,12 +80,12 @@ class PaymentHistoryController extends Controller
                         ->join('clients','orders.client_id', '=', 'clients.id')
                         ->where('orders.id', '=', $request->query('order'))
                         ->first(),
-            'payment_status' => PaymentStatus::all(),
+            'payment_status' => $payment_status,
             'payment_methods' => PaymentHistories::PAYMENT_METHOD,
             'status' => PaymentHistories::STATUS,
             'refundable_status' => PaymentHistories::REFUNDABLE_STATUS
         ];
-        return view('layouts.payment_history.form', $options);
+        return view('layouts.payment_history.formForOrder', $options);
         //
     }
 
@@ -104,7 +106,7 @@ class PaymentHistoryController extends Controller
             'nominal' => str_replace(",","", $request->nominal),
             'payment_method' => $request->payment_method,
             'payment_date' => date('Y-m-d H:i:s'),
-            'status' => $request->status,
+            'status' => ($request->payment_status_id == 2 ? 1 : 0),
             'refundable_status' => $request->refundable_status
         ]);
 
@@ -131,11 +133,17 @@ class PaymentHistoryController extends Controller
      * @param  \App\PaymentHistories  $paymentHistories
      * @return \Illuminate\Http\Response
      */
-    public function edit(PaymentHistories $paymentHistories)
+    public function edit(Request $request, $id)
     {
+        $payment_history = DB::table('payment_histories')->select('payment_status_id as id')->distinct()->where('order_id', '=', $request->query('order'))->get()->pluck('id');
+        $payment_status = DB::table('payment_status')->select('id', 'name')->whereNotIn('id', $payment_history->toArray())->get();
         $options = [
             'type' => 'update',
-            'orders' => Orders::all()
+            'payment_status' => $payment_status,
+            'payment_methods' => PaymentHistories::PAYMENT_METHOD,
+            'status' => PaymentHistories::STATUS,
+            'refundable_status' => PaymentHistories::REFUNDABLE_STATUS,
+            'data' => PaymentHistories::where("id", $id)->first()
         ];
         return view('layouts.payment_history.form', $options);
 
@@ -148,8 +156,19 @@ class PaymentHistoryController extends Controller
      * @param  \App\PaymentHistories  $paymentHistories
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, PaymentHistories $paymentHistories)
+    public function update(PaymentHistoryRequest $request, $id)
     {
+        $request->validated();
+        DB::table('payment_histories')
+        ->where('id', $id)
+        ->update([
+            'nominal' => str_replace(",","", $request->nominal),
+            'payment_method' => $request->payment_method,
+            'payment_date' => date('Y-m-d H:i:s'),
+            'status' => ($request->payment_status_id == 2 ? 1 : 0),
+            'refundable_status' => $request->refundable_status
+        ]);
+        return redirect(route('payment-history.index'));
         //
     }
 

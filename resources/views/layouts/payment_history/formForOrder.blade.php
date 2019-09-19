@@ -24,11 +24,35 @@ $(function(){
           $action = $type == 'update' ? route('payment-history.update', $data->id): route('payment-history.store');
         ?>
         <form role="form" action="{{$action}}" method="POST">
+          @if ($type == "create")
+            <input type="hidden" name="order_id" value="{{$order->order_id}}">
+          @endif
           @csrf
           <?php if($type=='update'):?>
             @method('PUT')
           <?php endif;?>
           <div class="box-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Unit name</label>
+                  <div class="form-control">
+                    <strong>{{$order->unit_name}}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Customer</label>
+                  <div class="form-control">
+                    <strong>{{$order->client_name}}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group @error('payment_status') has-error @enderror">

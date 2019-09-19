@@ -30,7 +30,7 @@
     <div class="col-xs-12">
       <div class="box">
         <div class="box-header">
-          <h3 class="box-title">Data Pembeli</h3>
+          <h3 class="box-title">Customers</h3>
         </div>
         <div class="box-body">
           <div class="row">
@@ -42,7 +42,7 @@
 
         <!-- /.box-header -->
         <div class="box-body">
-          <table id="list-pembeli" class="table table-bordered table-striped">
+          <table id="list-pembeli" class="table table-bordered table-striped" style="width:100%">
             <thead>
             <tr>
               <th>Id</th>

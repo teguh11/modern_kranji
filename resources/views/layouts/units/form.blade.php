@@ -133,17 +133,6 @@ $(function(){
                   @enderror
                 </div>
               </div>
-              <div class="col-md-4">
-                  <div class="form-group @error('unit_total') has-error @enderror">
-                    <label for="unit_total">Jumlah Unit</label>
-                    <input type="text" class="form-control" id="unit_total" placeholder="" name="unit_total" value="{{old('unit_total') == '' ? (isset($data)?$data->unit_total:"") : old('unit_total')}}">
-                    @error('unit_total')
-                      <span class="help-block" role="alert">
-                        <strong>{{ $message }}</strong>
-                      </span>
-                    @enderror
-                  </div>
-                </div>
             </div>
           </div>
           <!-- /.box-body -->

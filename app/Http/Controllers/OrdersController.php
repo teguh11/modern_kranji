@@ -32,6 +32,7 @@ class OrdersController extends Controller
      */
     public function index()
     {
+        // dd($status);
         return view('layouts.orders.index');
         //
     }
@@ -64,6 +65,11 @@ class OrdersController extends Controller
         ->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
         ->make(true);
         //
+    }
+
+    public function status($status)
+    {
+        dd($status);
     }
 
     /**

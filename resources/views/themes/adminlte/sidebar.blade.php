@@ -29,19 +29,19 @@
         <li><a href="{{route('units.index')}}"><i class="fa fa-users"></i> <span>UNITS</span></a></li>
         <li><a href="{{route('orders.index')}}"><i class="fa fa-users"></i> <span>ORDERS</span></a></li>
         <li><a href="{{route('payment-history.index')}}"><i class="fa fa-users"></i> <span>HISTORY TRANSAKSI</span></a></li>
-        <li class="treeview">
+        {{-- <li class="treeview">
           <a href="#">
             <i class="fa fa-files-o"></i>
             <span>Orders</span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="{{route('users.index')}}"><i class="fa fa-users"></i> <span>Reserved</span></a></li>
-            <li><a href="{{route('roles.index')}}"><i class="fa fa-circle-o"></i>Booking Fee</a></li>
-            <li><a href="{{route('users.index')}}"><i class="fa fa-users"></i> <span>DP</span></a></li>
-            <li><a href="{{route('roles.index')}}"><i class="fa fa-circle-o"></i>Cash Bertahap</a></li>
-            <li><a href="{{route('roles.index')}}"><i class="fa fa-circle-o"></i>Lunas</a></li>
+            <li><a href="{{action('OrdersController@status', ['status'=> 'reserved'])}}"><i class="fa fa-users"></i> <span>Reserved</span></a></li>
+            <li><a href="{{action('OrdersController@status', ['status'=> 'booking'])}}"><i class="fa fa-circle-o"></i>Booking Fee</a></li>
+            <li><a href="{{action('OrdersController@status', ['status'=> 'dp'])}}"><i class="fa fa-users"></i> <span>DP</span></a></li>
+            <li><a href="{{action('OrdersController@status', ['status'=> 'cash-bertahap'])}}"><i class="fa fa-circle-o"></i>Cash Bertahap</a></li>
+            <li><a href="{{action('OrdersController@status', ['status'=> 'lunas'])}}"><i class="fa fa-circle-o"></i>Lunas</a></li>
           </ul>
-        </li>
+        </li> --}}
         <li class="treeview">
           <a href="#">
             <i class="fa fa-files-o"></i>

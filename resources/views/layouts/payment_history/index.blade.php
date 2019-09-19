@@ -8,6 +8,7 @@
   <script>
     $(function () {
       $('#list-pembeli').DataTable({
+        scrollX: true,
         processing: true,
         serverSide: true,
         ajax: '{{route('payment-history.data')}}',
@@ -34,17 +35,9 @@
         <div class="box-header">
           <h3 class="box-title">History Transaksi</h3>
         </div>
-        <div class="box-body">
-          <div class="row">
-            <div class="col-xs-12 col-sm-4 pull-right">
-              <a href="{{route('payment-history.create')}}" class="btn btn-block btn-info btn-sm">Tambah Data</a>
-            </div>
-          </div>
-        </div>
-
         <!-- /.box-header -->
         <div class="box-body">
-          <table id="list-pembeli" class="table table-bordered table-striped">
+          <table id="list-pembeli" class="table table-bordered table-striped" style="width:100%;">
             <thead>
             <tr>
               <th>Payment Number</th>

@@ -26,6 +26,6 @@ class PaymentHistories extends Model
     {
         parent::boot();
 
-        static::addGlobalScope(new StatusScope);
+        // static::addGlobalScope(new StatusScope);
     }
 }

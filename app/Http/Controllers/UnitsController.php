@@ -139,8 +139,8 @@ class UnitsController extends Controller
             'view_id' => $request->view,
             'large' => str_replace(",","", $request->large),
             'price' => str_replace(",","", $request->price),
-            'unit_total' => str_replace(",","", $request->unit_total),
-            'unit_stock' => str_replace(",","", $request->unit_total),
+            // 'unit_total' => str_replace(",","", $request->unit_total),
+            // 'unit_stock' => str_replace(",","", $request->unit_total),
             'status' => 1
         ]);
 
@@ -208,8 +208,8 @@ class UnitsController extends Controller
                 'view_id' => $request->view,
                 'large' => str_replace(",","", $request->large),
                 'price' => str_replace(",","", $request->price),
-                'unit_total' => str_replace(",","", $request->unit_total),
-                'unit_stock' => str_replace(",","", $request->unit_total),
+                // 'unit_total' => str_replace(",","", $request->unit_total),
+                // 'unit_stock' => str_replace(",","", $request->unit_total),
                 ]);
 
         return redirect(route('units.index'));
