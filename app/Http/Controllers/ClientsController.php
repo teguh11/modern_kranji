@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Authorizable;
 use App\Clients;
+use App\Banks;
 use App\Http\Requests\ClientRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,7 +48,11 @@ class ClientsController extends Controller
      */
     public function create()
     {
-        return view('layouts.clients.form', ['type' => 'create']);
+        $options = [
+            'type' => 'create',
+            'banks' => Banks::select('id', 'name')->orderBy('name', 'asc')->get()
+        ];
+        return view('layouts.clients.form', $options );
     }
 
     /**
@@ -71,7 +76,10 @@ class ClientsController extends Controller
             'telp_rumah' => $request->telp_rumah,
             'telp_kantor' => $request->telp_kantor,
             'handphone' => $request->handphone,
-            'address' => $request->address
+            'address' => $request->address,
+            'bank_id' => $request->bank,
+            'account_name' => $request->account_name,
+            'account_number' => $request->account_number
         ]);
 
         return redirect(route('clients.index'));
@@ -97,7 +105,12 @@ class ClientsController extends Controller
     public function edit(Request $request, $id)
     {
         $client = Clients::where('id', $id)->first();
-        return view('layouts.clients.form', ['type' => 'update', 'data' => $client]);
+        $options = [
+            'type' => 'update', 
+            'data' => $client, 
+            'banks' => Banks::select('id', 'name')->orderBy('name', 'asc')->get()
+        ];
+        return view('layouts.clients.form', $options );
         //
     }
 
@@ -124,7 +137,10 @@ class ClientsController extends Controller
                 'telp_rumah' => $request->telp_rumah,
                 'telp_kantor' => $request->telp_kantor,
                 'handphone' => $request->handphone,
-                'address' => $request->address
+                'address' => $request->address,
+                'bank_id' => $request->bank,
+                'account_name' => $request->account_name,
+                'account_number' => $request->account_number
             ]);
 
         return redirect(route('clients.index'));

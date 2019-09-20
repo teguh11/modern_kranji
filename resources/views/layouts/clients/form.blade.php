@@ -30,6 +30,8 @@
                   @enderror
                 </div>      
               </div>
+            </div>
+            <div class="row">
               <div class="col-md-6">
                 <div class="form-group @error('email') has-error @enderror">
                   <label for="email">Email</label>
@@ -55,17 +57,66 @@
                   @enderror
                 </div>
               </div>
+            </div>
+            <div class="row">
               <div class="col-md-4">
-                  <div class="form-group @error('identity_file') has-error @enderror">
-                    <label for="identity_no">No KTP</label>
-                    <input type="file" class="form-control" id="identity_file" placeholder="" name="identity_file" />
-                    @error('identity_file')
-                      <span class="help-block" role="alert">
-                        <strong>{{ $message }}</strong>
-                      </span>
-                    @enderror
-                  </div>
+                <div class="form-group @error('identity_file') has-error @enderror">
+                  <label for="identity_no">Foto KTP</label>
+                  <input type="file" class="form-control" id="identity_file" placeholder="" name="identity_file" />
+                  @error('identity_file')
+                    <span class="help-block" role="alert">
+                      <strong>{{ $message }}</strong>
+                    </span>
+                  @enderror
                 </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group @error('bank') has-error @enderror">
+                  <label for="bank">Bank</label>
+                  <select class="form-control" name="bank">
+                    @foreach ($banks as $bank)
+                      <option value="{{$bank->id}}" {{old('bank') == $bank->id ? "selected" : isset($data) && $data->bank_id == $bank->id ? "selected" : ""}}>{{$bank->name}}</option>
+                    @endforeach
+                  </select>
+                  @error('bank')
+                    <span class="help-block" role="alert">
+                      <strong>{{ $message }}</strong>
+                    </span>
+                  @enderror
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group @error('account_name') has-error @enderror">
+                  <label for="account_name">Nama Akun Bank</label>
+                  <input type="text" class="form-control" id="account_name" placeholder="" name="account_name" value="{{old('account_name') == '' ? (isset($data)?$data->account_name:"") : old('account_name')}}">
+                  @error('account_name')
+                    <span class="help-block" role="alert">
+                      <strong>{{ $message }}</strong>
+                    </span>
+                  @enderror
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group @error('account_number') has-error @enderror">
+                  <label for="account_number">Nomor Rekening</label>
+                  <input type="text" class="form-control" id="account_number" placeholder="" name="account_number" value="{{old('account_number') == '' ? (isset($data)?$data->account_number:"") : old('account_number')}}">
+                  @error('account_number')
+                    <span class="help-block" role="alert">
+                      <strong>{{ $message }}</strong>
+                    </span>
+                  @enderror
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
               <div class="col-md-4">
                 <div class="form-group @error('npwp') has-error @enderror">
                   <label for="npwp">NPWP</label>
@@ -78,6 +129,7 @@
                 </div>
               </div>
             </div>
+
             <div class="row">
               <div class="col-md-4">
                 <div class="form-group @error('telp_rumah') has-error @enderror">
@@ -90,6 +142,8 @@
                   </span>
                 @enderror
               </div>
+            </div>
+            <div class="row">
               <div class="col-md-4">
                 <div class="form-group @error('telp_kantor') has-error @enderror">
                   <label for="telp_kantor">Telepon Kantor</label>
@@ -101,6 +155,8 @@
                   @enderror
                 </div>
               </div>
+            </div>
+            <div class="row">
               <div class="col-md-4">
                 <div class="form-group @error('handphone') has-error @enderror">
                   <label for="handphone">Handphone</label>
