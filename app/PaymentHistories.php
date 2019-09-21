@@ -21,6 +21,10 @@ class PaymentHistories extends Model
         'No',
         'Yes'
     ];
+    const RESERVED = [2];
+    const BOOKING = [2,3];
+    const DP = [2,3,5];
+    const CASH_BERTAHAP = [2,3,5,4];
 
     protected static function boot()
     {

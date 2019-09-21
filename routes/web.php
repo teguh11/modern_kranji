@@ -27,6 +27,7 @@ Route::get('/clients/show/data', 'ClientsController@data')->name('clients.data')
 Route::resource('orders','OrdersController');
 Route::get('/orders/show/data', 'OrdersController@data')->name('orders.data');
 Route::get('/orders/status/{status}', 'OrdersController@status');
+Route::get('/orders/show/data/{status}', 'OrdersController@dataByStatus');
 // Route::get('/roles/transaction/{id}', 'RolesController@test');
 
 Route::resource('users','UsersController');

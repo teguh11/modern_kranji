@@ -36,20 +36,21 @@ class PaymentHistoryController extends Controller
     {
         // dd(\App\PaymentHistories::PAYMENT_METHOD[1]);
         $paymentHistories = DB::table('payment_histories')
-        ->select(
-            'payment_histories.id',
-            'payment_histories.payment_number',
-            'payment_histories.nominal',
-            'payment_status.name as payment_status',
-            'payment_histories.payment_method',
-            'payment_histories.payment_date',
-            'payment_histories.refundable_status',
-            'payment_histories.status'
-        )
-        ->join('orders', 'payment_histories.order_id', '=', 'orders.id')
-        ->join('unit', 'orders.unit_id', '=', 'unit.id')
-        ->join('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
-        ->get();
+            ->select(
+                'payment_histories.id',
+                'payment_histories.payment_number',
+                'payment_histories.nominal',
+                'payment_status.name as payment_status',
+                'payment_histories.payment_method',
+                'payment_histories.payment_date',
+                'payment_histories.refundable_status',
+                'payment_histories.status'
+            )
+            ->join('orders', 'payment_histories.order_id', '=', 'orders.id')
+            ->join('unit', 'orders.unit_id', '=', 'unit.id')
+            ->join('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
+            ->get();
+            
         return DataTables::of($paymentHistories)
         ->addColumn('action', function($paymentHistory)
         {
