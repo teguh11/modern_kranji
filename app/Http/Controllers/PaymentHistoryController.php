@@ -72,6 +72,7 @@ class PaymentHistoryController extends Controller
     public function create(Request $request)
     {
         $payment_history = DB::table('payment_histories')->select('payment_status_id as id')->distinct()->where('order_id', '=', $request->query('order'))->get()->pluck('id');
+        
         $payment_status = DB::table('payment_status')->select('id', 'name')->whereNotIn('id', $payment_history->toArray())->get();
         $options = [
             'type' => 'create',

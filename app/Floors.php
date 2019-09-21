@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Floors extends Model
 {
     protected $table = 'floors';
+    const UPDATED_AT = 'update_at';
     //
     protected static function boot()
     {

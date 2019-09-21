@@ -36,6 +36,19 @@ Route::get('/users/show/data', 'UsersController@data')->name('users.data');
 Route::resource('payment-history','PaymentHistoryController');
 Route::get('/payment-history/show/data', 'PaymentHistoryController@data')->name('payment-history.data');
 
+Route::resource('unit-type','UnitTypesController');
+Route::get('/unit-type/show/data', 'UnitTypesController@data')->name('unit-type.data');
+
+Route::resource('floors','FloorsController');
+Route::get('/floors/show/data', 'FloorsController@data')->name('floors.data');
+
+Route::resource('towers','TowersController');
+Route::get('/towers/show/data', 'TowersController@data')->name('towers.data');
+
+Route::resource('views','ViewsController');
+Route::get('/views/show/data', 'ViewsController@data')->name('views.data');
+
+
 Route::resource('roles','RolesController');
 Route::get('/roles/show/data', 'RolesController@data')->name('roles.data');
 Route::get('/roles/{id}/addpermission', 'RolesController@addpermission')->name('roles.create-permission');

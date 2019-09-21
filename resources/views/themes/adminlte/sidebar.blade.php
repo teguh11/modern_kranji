@@ -50,6 +50,10 @@
           <ul class="treeview-menu">
             <li><a href="{{route('users.index')}}"><i class="fa fa-users"></i> <span>USERS</span></a></li>
             <li><a href="{{route('roles.index')}}"><i class="fa fa-circle-o"></i>ROLES</a></li>
+            <li><a href="{{route('unit-type.index')}}"><i class="fa fa-circle-o"></i>UNIT TYPE</a></li>
+            <li><a href="{{route('floors.index')}}"><i class="fa fa-users"></i> <span>FLOORS</span></a></li>
+            <li><a href="{{route('towers.index')}}"><i class="fa fa-circle-o"></i>TOWERS</a></li>
+            <li><a href="{{route('views.index')}}"><i class="fa fa-users"></i> <span>VIEWS</span></a></li>
           </ul>
         </li>
       </ul>

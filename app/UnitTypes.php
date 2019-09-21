@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class UnitTypes extends Model
 {
     protected $table = 'unit_types';
+    const UPDATED_AT = 'update_at';
     //
     protected static function boot()
     {
