@@ -157,7 +157,7 @@ class OrdersController extends Controller
         $options = [
             'type' => 'create',
             'unit' => $detailUnit,
-            'clients' => Clients::all(),
+            'clients' => DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get(),
             'payment_statuss' => PaymentStatus::all(),
             'payment_methods' => PaymentHistories::PAYMENT_METHOD
         ];
