@@ -13,6 +13,33 @@ use Yajra\DataTables\Facades\DataTables;
 
 class PaymentHistoryController extends Controller
 {
+//     SELECT 
+// clients.name as client_name,
+// clients.address as client_address,
+// clients.handphone as client_phone,
+// clients.email as client_email,
+// users.name as user_name,
+// users.email as user_email,
+// unit.unit_name as unit_name,
+// unit_types.name as unit_type,
+// floors.name as unit_floor,
+// views.name as unit_view,
+// towers.name as unit_tower,
+// payment_histories.payment_number as payment_number,
+// payment_histories.nominal as payment,
+// payment_histories.payment_method as payment_method,
+// payment_histories.payment_date as payment_date,
+// payment_status.name as payment_status
+// from orders
+// LEFT JOIN clients on orders.client_id = clients.id
+// LEFT JOIN users on orders.user_id = users.id
+// LEFT JOIN unit on orders.unit_id = unit.id
+// LEFT join unit_types on unit.unit_type_id = unit_types.id
+// LEFT JOIN floors on unit.floor_id = floors.id
+// LEFT JOIN `views` on unit.view_id = `views`.id
+// LEFT JOIN towers on unit.tower_id = towers.id
+// LEFT JOIN payment_histories on orders.id = payment_histories.order_id
+// LEFT JOIN payment_status on payment_histories.payment_status_id = payment_status.id
     use Authorizable;
 
     public function __construct()

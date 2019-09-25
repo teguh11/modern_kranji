@@ -1,80 +1,60 @@
 @extends('themes.adminlte.app')
 @push('scripts')
+<script src="{{asset('adminlte/bower_components/cleave.js/dist/cleave.min.js')}}"></script>
 <script>
-  $(function(){
-    $("#unit").on("change",function(){
-      changeUnit($(this).val());
-    })
-    function changeUnit(id) {
-        $.get('/units/'+id, function(data) {
-          json_data = JSON.parse(data)
-          console.log(json_data)
-          $(".unit_name-detail").html(json_data.unit_name)
-          $(".unit_type-detail").html(json_data.unit_type_name)
-          $(".floor-detail").html(json_data.floor)
-          $(".large-detail").html(json_data.large)
-          $(".price-detail").html("Rp "+number_format(json_data.price, "0", ",", "."))
-        })
-    }
-
-    changeUnit($("#unit").val());
-
-    function number_format (number, decimals, decPoint, thousandsSep) {
-      number = (number + '').replace(/[^0-9+\-Ee.]/g, '')
-      var n = !isFinite(+number) ? 0 : +number
-      var prec = !isFinite(+decimals) ? 0 : Math.abs(decimals)
-      var sep = (typeof thousandsSep === 'undefined') ? ',' : thousandsSep
-      var dec = (typeof decPoint === 'undefined') ? '.' : decPoint
-      var s = ''
-
-      var toFixedFix = function (n, prec) {
-        if (('' + n).indexOf('e') === -1) {
-          return +(Math.round(n + 'e+' + prec) + 'e-' + prec)
-        } else {
-          var arr = ('' + n).split('e')
-          var sig = ''
-          if (+arr[1] + prec > 0) {
-            sig = '+'
-          }
-          return (+(Math.round(+arr[0] + 'e' + sig + (+arr[1] + prec)) + 'e-' + prec)).toFixed(prec)
-        }
-      }
-
-      // @todo: for IE parseFloat(0.55).toFixed(0) = 0;
-      s = (prec ? toFixedFix(n, prec).toString() : '' + Math.round(n)).split('.')
-      if (s[0].length > 3) {
-        s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep)
-      }
-      if ((s[1] || '').length < prec) {
-        s[1] = s[1] || ''
-        s[1] += new Array(prec - s[1].length + 1).join('0')
-      }
-
-      return s.join(dec)
-    }
-  })
-</script>   
+$(function(){
+  new Cleave('#nominal', {
+    numeral: true,
+    numeralThousandsGroupStyle: 'thousand'
+  });
+})
+</script>
 @endpush
 
 @section('content')
   <div class="row">
     <div class="col-md-12">
       <div class="box box-primary">
-        <div class="box-header with-border">
-          <h3 class="box-title">Order</h3>
-        </div>
-        <!-- /.box-header -->
         <!-- form start -->
         <?php
           $action = $type == 'update' ? route('orders.update', $data->id): route('orders.store');
         ?>
-        <form role="form" action="{{$action}}" method="POST">
+        <div class="box-body">
+          <div class="row">
+            <div class="col-md-12">
+              <h3>Detail Unit</h3>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6 col-md-4">
+              <label for="">Nama Unit</label>
+              <div>{{$unit->unit_name}}</div>
+            </div>
+            <div class="col-md-4 col-xs-6 ">
+              <label for="">Tipe Unit</label>
+              <div>{{$unit->unit_type_name}}</div>
+            </div>
+            <div class="col-md-4 col-xs-6 ">
+              <label for="">Luas Unit</label>
+              <div>{{$unit->large}}</div>
+            </div>
+            <div class="col-md-4 col-xs-6 ">
+              <label for="">Lantai</label>
+              <div>{{$unit->floor}}</div>
+            </div>
+            <div class="col-md-4 col-xs-6 ">
+              <label for="">Harga</label>
+              <div>{{number_format($unit->price, 0, ",", ".")}}</div>
+            </div>
+          </div>
+        </div>
+        <form role="form" action="{{$action}}" method="POST" enctype="multipart/form-data">
           @csrf
           <?php if($type=='update'):?>
             @method('PUT')
           <?php endif;?>
           <div class="box-body">
-            <div class="row">
+            {{-- <div class="row">
               <div class="col-md-6">
                 <div class="form-group @error('user') has-error @enderror">
                   <label for="nama">User</label>
@@ -85,7 +65,7 @@
                   </select>
                 </div>      
               </div>
-            </div>
+            </div> --}}
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group @error('client') has-error @enderror">
@@ -99,7 +79,7 @@
               </div>
             </div>
 
-            <div class="row">
+            {{-- <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
                     <label>Unit</label>
@@ -121,22 +101,66 @@
                     <li class="list-group-item">Harga : <b><div class="price-detail"></div></b></li>
                   </ul>
               </div>
-            </div>
+            </div> --}}
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
                   <label>Status</label>
-                  <select class="form-control" name="available_status">
-                    @foreach ($available_statuss as $available_status)
-                      <option value="{{$available_status->id}}" {{old('available_status') == $available_status->id ? "selected" : isset($data) && $data->available_status_id == $available_status->id ? "selected" : ""}}>{{$available_status->name}}</option>
+                  <select class="form-control" name="payment_status">
+                    @foreach ($payment_statuss as $payment_status)
+                      <option value="{{$payment_status->id}}"  {{old('payment_status') == $payment_status->id ? "selected":""}} >{{$payment_status->name}}</option>
                     @endforeach
                   </select>
                 </div>
               </div>
             </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Payment Method</label>
+                  <select class="form-control" name="payment_method">
+                    @foreach ($payment_methods as $payment_method_id => $payment_method_name)
+                      <option value="{{$payment_method_id}}"  {{old('payment_method') == $payment_method_id ? "selected":""}} >{{$payment_method_name}}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group @error('nominal') has-error @enderror">
+                  <label for="nominal">Nominal</label>
+                  <input type="text" class="form-control" id="nominal" placeholder="" name="nominal" value="{{old('nominal')}}">
+                  @error('nominal')
+                    <span class="help-block" role="alert">
+                      <strong>{{ $message }}</strong>
+                    </span>
+                  @enderror
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group @error('transaction_file') has-error @enderror">
+                  <label for="transaction_file">Bukti Transaksi</label>
+                  <input type="file" class="form-control" id="transaction_file" placeholder="" name="transaction_file" />
+                  @error('transaction_file')
+                    <span class="help-block" role="alert">
+                      <strong>{{ $message }}</strong>
+                    </span>
+                  @enderror
+                </div>
+              </div>
+            </div>
+            <input type="hidden" name="unit_id" value="{{app('request')->query('id')}}">
           <!-- /.box-body -->
           <div class="box-footer">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <div class="row">
+              <div class="col-sm-12">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+            </div>
           </div>
         </form>
       </div>

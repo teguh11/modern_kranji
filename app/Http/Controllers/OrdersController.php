@@ -6,6 +6,8 @@ use App\Authorizable;
 use App\AvailableStatus;
 use App\Clients;
 use App\Orders;
+use App\PaymentHistories;
+use App\PaymentStatus;
 use App\Pembeli;
 use App\Traits\ViewDataByLogin;
 use App\Units;
@@ -51,7 +53,7 @@ class OrdersController extends Controller
             ->join('unit', 'orders.unit_id', '=', 'unit.id')
             ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
             ->join('floors', 'unit.floor_id', '=', 'floors.id')
-            ->join('available_status', 'orders.available_status_id', '=', 'available_status.id');
+            ->leftJoin('available_status', 'orders.available_status_id', '=', 'available_status.id');
             $orders = $this->viewData($orders, 'orders.user_id');
             $orders = $orders->get();
         return DataTables::of($orders)->addColumn('action', function($order)
@@ -139,16 +141,27 @@ class OrdersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
+        $unit_id = $request->query('id');
+        $detailUnit = $unit = DB::table('unit')
+        ->select('unit.unit_name', 'unit.large as large', 'unit_types.name as unit_type_name', 'floors.name as floor', 'unit.price as price')
+        ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
+        ->join('floors', 'unit.floor_id', '=', 'floors.id')
+        ->where("unit.id", "=", $unit_id)
+        ->first();
+        if(empty($detailUnit)){
+            return redirect(route('units.index'));
+        }
+        // die($unit_id);
         $options = [
             'type' => 'create',
-            'units' => Units::all(),
+            'unit' => $detailUnit,
             'clients' => Clients::all(),
-            'users' => User::all(),
-            'units' => Units::all(),
-            'available_statuss' => AvailableStatus::all(),
+            'payment_statuss' => PaymentStatus::all(),
+            'payment_methods' => PaymentHistories::PAYMENT_METHOD
         ];
+        // dd($options);die;
 
         return view('layouts.orders.form', $options);
     }
@@ -161,13 +174,30 @@ class OrdersController extends Controller
      */
     public function store(Request $request)
     {
-        DB::table('orders')->insert([
-            'order_number' => rand(1, 1000),
-            'client_id' => $request->client,
-            'user_id' => $request->user,
-            'unit_id' => $request->unit,
-            'available_status_id' => $request->available_status,
-        ]);
+        $file = $request->file('transaction_file')->store(env("TRANSACTION_DIR").date("Y/m/d"));
+        //insert to tabel order
+        DB::transaction(function() use ($request, $file)
+        {
+            $orderID = DB::table('orders')->insertGetId([
+                'order_number' => "ORDER_".rand(1, 1000),
+                'client_id' => $request->client,
+                'user_id' => auth()->user()->id,
+                'unit_id' => $request->unit_id,
+                // 'available_status_id' => $request->available_status,
+            ]);
+            $pr = DB::table("payment_histories")->insert([
+                'order_id' => $orderID,
+                'user_id' => auth()->user()->id,
+                'payment_status_id' => $request->payment_status,
+                'payment_number' => 'PN_'.$request->order_id."_".auth()->user()->id."_".rand(0, 9999)."_".strtotime(date('YmdHis')),
+                'nominal' => str_replace(",","", $request->nominal),
+                'payment_method' => $request->payment_method,
+                'payment_date' => date('Y-m-d H:i:s'),
+                'status' => ($request->payment_status_id == 2 ? 1 : 0),
+                'transaction_file' => $file
+                // 'refundable_status' => $request->refundable_status
+            ]);
+        });
         return redirect(route('orders.index'));
         //
     }

@@ -74,7 +74,10 @@ class UnitsController extends Controller
             }
         });
         $datatables->addColumn('action', function($unit){
-            return '<a href="'.route('units.edit',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+            // return '<a href="'.route('units.edit',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+            
+            return '<a href="'.route('units.edit',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>
+                    <a href="'.route('orders.create',['id' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Order</a>';
         })
         ->editColumn('price', '{{number_format($price, "0", ", ", ".")}}')
         ->editColumn('unit_total', '{{number_format($unit_total, "0", ", ", ".")}}');
