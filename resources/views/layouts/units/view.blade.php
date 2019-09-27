@@ -65,36 +65,34 @@
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col-xs-12 table-responsive">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Nomor Unit</th>
-                    <th>Nama Unit</th>
-                    <th>Tipe Unit</th>
-                    <th>Lantai</th>
-                    <th>Pemandangan</th>
-                    <th>Luas</th>
-                    <th>Harga</th>
-                    <th>Tower</th>
-                  </tr>
-                </thead>
-                <tbody>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Nomor Unit</th>
+                  <th>Nama Unit</th>
+                  <th>Tipe Unit</th>
+                  <th>Lantai</th>
+                  <th>Pemandangan</th>
+                  <th>Luas</th>
+                  <th>Harga</th>
+                  <th>Tower</th>
+                </tr>
+              </thead>
+              <tbody>
 
-                  <tr>
-                    <td>{{$unit->unit_number}}</td>
-                    <td>{{$unit->unit_name}}</td>
-                    <td>{{$unit->unit_type_name}}</td>
-                    <td>{{$unit->floor_name}}</td>
-                    <td>{{$unit->view_name}}</td>
-                    <td>{{$unit->large}}</td>
-                    <td>{{number_format($unit->price, 0, ",", ".")}}</td>
-                    <td>{{$unit->tower_name}}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                <tr>
+                  <td>{{$unit->unit_number}}</td>
+                  <td>{{$unit->unit_name}}</td>
+                  <td>{{$unit->unit_type_name}}</td>
+                  <td>{{$unit->floor_name}}</td>
+                  <td>{{$unit->view_name}}</td>
+                  <td>{{$unit->large}}</td>
+                  <td>{{number_format($unit->price, 0, ",", ".")}}</td>
+                  <td>{{$unit->tower_name}}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -114,43 +112,44 @@
         </div>
 
         <div class="box-body">
-          <div class="row">
-            <div class="col-xs-12 table-responsive">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>No Pembayaran</th>
-                    <th>Nominal</th>
-                    <th>Dibuat Oleh</th>
-                    <th>Tanggal Pembayaran</th>
-                    <th>Pembayaran Untuk</th>
-                    <th>Metode Pembayaran</th>
-                    <th>Status Pengembalian</th>
-                    <th>Valid?</th>
-                    @role("kasir")
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>No Pembayaran</th>
+                  <th>Nominal</th>
+                  <th>Dibuat Oleh</th>
+                  <th>Tanggal Pembayaran</th>
+                  <th>Pembayaran Untuk</th>
+                  <th>Metode Pembayaran</th>
+                  <th>Status Pengembalian</th>
+                  <th>Valid?</th>
+                  @role("kasir")
                     <th>Aksi</th>
+                  @endrole
+                </tr>
+              </thead>
+              <tbody>
+                @foreach ($transactionHistory as $item)
+                  <tr class="{{$item->valid_transaction == 1?"bg-green":""}}">
+                    <td>{{$item->payment_number}}</td>
+                    <td>{{number_format($item->nominal, 0, ",", ".")}}</td>
+                    <td>{{$item->user_name}}</td>
+                    <td>{{$item->payment_date}}</td>
+                    <td>{{$item->payment_status_name}}</td>
+                    <td>{{$item->payment_method == 0 ? "Cash" : "Transfer"}}</td>
+                    <td>{{$item->refundable_status == 0 ? "Belum" : "Sudah"}}</td>
+                    <td>{{$item->valid_transaction == 0 ? "Tidak" : "Sudah"}}</td>
+                    @role("kasir")
+                    <td>
+                      <a target="_blank" href="{{route('payment-history.print', ['payment_history' => $item->id, 'order' => $item->order_id, 'unit' => $unit->id])}}" class="btn btn-small btn-primary">Print</a>
+                      <a href="{{route('orders.edit', ['payment_history' => $item->id, 'order' => $item->order_id, 'unit' => $unit->id])}}" class="btn btn-small btn-primary">Validasi</a>
+                    </td>
                     @endrole
-                  </tr>
-                </thead>
-                <tbody>
-                  @foreach ($transactionHistory as $item)
-                    <tr>
-                      <td>{{$item->payment_number}}</td>
-                      <td>{{number_format($item->nominal, 0, ",", ".")}}</td>
-                      <td>{{$item->user_name}}</td>
-                      <td>{{$item->payment_date}}</td>
-                      <td>{{$item->payment_status_name}}</td>
-                      <td>{{$item->payment_method == 0 ? "Cash" : "Transfer"}}</td>
-                      <td>{{$item->refundable_status == 0 ? "Belum" : "Sudah"}}</td>
-                      <td>{{$item->valid_transaction == 0 ? "Tidak" : "Sudah"}}</td>
-                      @role("kasir")
-                      <td>{{$item->valid_transaction}}</td>
-                      @endrole
-                    </tr>    
-                  @endforeach
-                </tbody>
-              </table>
-            </div>
+                  </tr>    
+                @endforeach
+              </tbody>
+            </table>
           </div>
           <div class="row">
             <div class="col-xs-12">
@@ -158,6 +157,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>

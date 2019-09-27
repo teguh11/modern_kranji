@@ -83,13 +83,14 @@ class UnitsController extends Controller
             }
         });
         $datatables->addColumn('action', function($unit){
+            $link_edit_unit = '<a href="'.route('units.edit',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+            $link_create_order = '<a href="'.route('orders.create',['id' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Order</a>';
+            $link_view_unit = '<a href="'.route('units.show',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> View</a>';
             $links = "";
             if(auth()->user()->hasRole('administrator')){
-                $links = '<a href="'.route('units.edit',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>
-                <a href="'.route('orders.create',['id' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Order</a>';
+                $links = $link_edit_unit;
             }elseif (auth()->user()->hasRole(['sales', 'kasir'])) {
-                $links = '<a href="'.route('units.show',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> View</a>
-                <a href="'.route('orders.create',['id' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Order</a>';
+                $links = $link_view_unit.$link_create_order;
             }
             return $links;
         })
@@ -161,6 +162,7 @@ class UnitsController extends Controller
                     'clients.address as client_address',
                     'users.name as user_name',
                     'users.email as user_email',
+                    'unit.id',
                     'unit.unit_number as unit_number',
                     'unit.large',
                     'unit.price',
@@ -188,6 +190,8 @@ class UnitsController extends Controller
         }
         $transactionHistory = DB::table('payment_histories')
                 ->select([
+                    'payment_histories.id',
+                    'payment_histories.order_id',
                     'payment_histories.payment_number',
                     'payment_histories.nominal',
                     'payment_histories.payment_date',

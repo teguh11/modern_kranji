@@ -211,4 +211,62 @@ class PaymentHistoryController extends Controller
     {
         //
     }
+
+    public function print(Request $request)
+    {
+        $unit = DB::table('unit')
+                ->select([
+                    'clients.name as client_name',
+                    'clients.handphone as client_phone',
+                    'clients.address as client_address',
+                    'users.name as user_name',
+                    'users.email as user_email',
+                    'unit.id',
+                    'unit.unit_number as unit_number',
+                    'unit.large',
+                    'unit.price',
+                    'unit.unit_name as unit_name',
+                    'unit_types.name as unit_type_name',
+                    'floors.name as floor_name',
+                    'views.name as view_name',
+                    'towers.name as tower_name',
+                    'orders.order_number as order_number',
+                    'orders.created_at as order_date',
+                    'orders.id as order_id',
+                ])
+                ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
+                ->join('floors', 'unit.floor_id', '=', 'floors.id')
+                ->join('views', 'unit.view_id', '=', 'views.id')
+                ->join('towers', 'unit.tower_id', '=', 'towers.id')
+                ->join('orders', 'unit.id', '=', 'orders.unit_id')
+                ->join('clients', 'orders.client_id', '=', 'clients.id')
+                ->join('users', 'orders.user_id', '=', 'users.id')
+                ->join('available_status', 'unit.available_status_id', '=', 'available_status.id')
+                
+                ->where('unit.id', '=', $request->query('unit'))->first();
+        $transactionHistory = DB::table('payment_histories')
+                ->select([
+                    'payment_histories.id',
+                    'payment_histories.order_id',
+                    'payment_histories.payment_number',
+                    'payment_histories.nominal',
+                    'payment_histories.payment_date',
+                    'payment_histories.refundable_status',
+                    'payment_histories.valid_transaction',
+                    'payment_histories.payment_method',
+                    'users.name as user_name',
+                    'payment_status.name as payment_status_name'
+                ])
+                ->join('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
+                ->join('users', 'payment_histories.user_id', '=', 'users.id')
+                ->where('payment_histories.order_id', '=', $request->query('order'))
+                ->where('payment_histories.id', '=', $request->query('payment_history'))
+                ->get();
+                $options = [
+                    'unit' => $unit,
+                    'transactionHistory' => $transactionHistory 
+                ];
+        return view('layouts.payment_history.print', $options);
+        # code...
+    }
 }

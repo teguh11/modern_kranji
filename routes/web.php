@@ -26,9 +26,6 @@ Route::get('/clients/show/data', 'ClientsController@data')->name('clients.data')
 
 Route::resource('orders','OrdersController');
 Route::get('/orders/show/data', 'OrdersController@data')->name('orders.data');
-Route::get('/orders/status/{status}', 'OrdersController@status');
-Route::get('/orders/show/data/{status}', 'OrdersController@dataByStatus');
-// Route::get('/roles/transaction/{id}', 'RolesController@test');
 
 Route::resource('users','UsersController');
 Route::get('/users/show/data', 'UsersController@data')->name('users.data');
@@ -48,11 +45,19 @@ Route::get('/towers/show/data', 'TowersController@data')->name('towers.data');
 Route::resource('views','ViewsController');
 Route::get('/views/show/data', 'ViewsController@data')->name('views.data');
 
-
 Route::resource('roles','RolesController');
 Route::get('/roles/show/data', 'RolesController@data')->name('roles.data');
+
+
+//START CUSTOM ROUTES
+//show order by status order
+Route::get('/orders/status/{status}', 'OrdersController@status');
+Route::get('/orders/show/data/{status}', 'OrdersController@dataByStatus');
+
 Route::get('/roles/{id}/addpermission', 'RolesController@addpermission')->name('roles.create-permission');
 Route::post('/roles/{id}/storepermission', 'RolesController@storepermission')->name('roles.store-permission');
+
+Route::get("/order/payment/print", 'PaymentHistoryController@print')->name('payment-history.print');
 
 
 Route::get('/home', 'HomeController@index')->name('home');

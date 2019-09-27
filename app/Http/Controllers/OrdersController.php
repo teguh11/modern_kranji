@@ -245,31 +245,51 @@ class OrdersController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        $canEdit = $this->canEdit($id);
-        if($canEdit->count() == 0){
-            $options = [
-                'type' => 'update',
-                'units' => Units::all(),
-                'clients' => Clients::all(),
-                'users' => User::all(),
-                'units' => Units::all(),
-                'available_statuss' => AvailableStatus::all(),
-                'data' => Orders::where("id", $id)->first()
-            ];
-            return view('layouts.orders.form', $options);
-        }else{
-            return view('themes.adminlte.error500');
-        }
-    }
-
-    public function canEdit($orderId)
-    {
-        $result = DB::table('orders')->select('orders.id')
+        $order_id = $id;
+        $unit_id = $request->query('unit');
+        $payment_history_id = $request->query('payment_history');
+        $detailUnit = $unit = DB::table('unit')
+        ->select([
+            'unit.unit_number', 
+            'unit.unit_name', 
+            'unit.large as large', 
+            'unit.id as unit_id', 
+            'unit_types.name as unit_type_name', 
+            'floors.name as floor', 
+            'unit.price as price', 
+            'views.name as view_name', 
+            'towers.name as tower_name',
+            'clients.id as client_id',
+            'payment_histories.payment_status_id as payment_status',
+            'payment_histories.payment_method as payment_method',
+            'payment_histories.nominal as nominal',
+            'payment_histories.id as payment_history_id',
+        ])
+        ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
+        ->join('floors', 'unit.floor_id', '=', 'floors.id')
+        ->join('views', 'unit.view_id', '=', 'views.id')
+        ->join('towers', 'unit.tower_id', '=', 'towers.id')
+        ->leftJoin('orders', 'unit.id', '=', 'orders.unit_id')
+        ->leftJoin('clients', 'orders.client_id', '=', 'clients.id')
         ->leftJoin('payment_histories', 'orders.id', '=', 'payment_histories.order_id')
-        ->where('payment_status_id', '>=', '3')
-        ->where('orders.id', '=', $orderId)
-        ->get();
-        return $result;
+        ->where("unit.id", "=", $unit_id)
+        ->where("orders.id", "=", $order_id)
+        ->where("payment_histories.id", "=", $payment_history_id)
+        ->first();
+
+        if(auth()->user()->hasRole('kasir')){
+            $clients = DB::table('clients')->get();
+        }else{
+            $clients = DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get();
+        }
+        $options = [
+            'type' => 'update',
+            'unit' => $detailUnit,
+            'clients' => $clients,
+            'payment_statuss' => PaymentStatus::all(),
+            'payment_methods' => PaymentHistories::PAYMENT_METHOD
+        ];
+        return view('layouts.orders.form', $options);
     }
 
     /**
@@ -281,16 +301,27 @@ class OrdersController extends Controller
      */
     public function update(Request $request, $id)
     {
-        DB::table('orders')
-        ->where('id', $id)
-        ->update([
-            'client_id' => $request->client,
-            'user_id' => $request->user,
-            'unit_id' => $request->unit,
-            'available_status_id' => $request->available_status,
-        ]);
-        return redirect(route('orders.index'));
+        $rules = [];
+        $file = "";
 
+        if($request->valid_transaction == 1){
+            $rules = array_merge($rules, ['transaction_file' => 'required']);
+        }
+        $request->validate($rules);
+        
+        if($request->hasFile('transaction_file')){
+            $file = $request->file('transaction_file')->store(env("TRANSACTION_DIR").date("Y/m/d"));
+        }
+
+        DB::table('payment_histories')
+        ->where('id', $request->query('payment_history'))
+        ->update([
+            'nominal' => str_replace(",","", $request->nominal),
+            'transaction_file' => $file,
+            'verified_by' => auth()->user()->id,
+            'valid_transaction' => $request->valid_transaction
+        ]);
+        return redirect(route('units.show',['unit' => $request->query('unit')]));
     }
 
     /**
