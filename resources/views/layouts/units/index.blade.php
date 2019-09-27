@@ -18,6 +18,7 @@
         ajax: {
           url : '{{route('units.data')}}',
           data : function(d){
+            d.client = $("#client").val()
             d.unit_type = $("#unit_type").val()
             d.floor = $("#floor").val()
             d.tower = $("#tower").val()
@@ -26,6 +27,7 @@
         },
         columns: [
             {data:'unit_number', name: 'unit_number'},
+            {data:'client_name', name: 'client_name'},
             {data:'unit_name', name: 'unit_name'},
             {data: 'unit_type', name: 'unit_type'},
             {data:'floor', name: 'floor'},
@@ -63,6 +65,19 @@
           </div>
           <div class="box-body">
             <form method="get" id="advance-search" action="#">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Pemilik</label>
+                    <select class="form-control" name="clientx" id="client">
+                      <option value=""></option>
+                      @foreach ($clients as $client)
+                        <option value="{{$client->id}}" {{old('client') == $client->id ? "selected" : ""}}>{{$client->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
+              </div>
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group">
@@ -150,6 +165,7 @@
             <thead>
               <tr>
                 <th>NO Unit</th>
+                <th>Pemilik</th>
                 <th>Nama Unit</th>
                 <th>Tipe Unit</th>
                 <th>Lantai</th>

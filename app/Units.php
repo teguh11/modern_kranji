@@ -4,6 +4,7 @@ namespace App;
 
 use App\Scopes\StatusScope;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Units extends Model
 {
@@ -15,4 +16,5 @@ class Units extends Model
 
         static::addGlobalScope(new StatusScope);
     }
+
 }

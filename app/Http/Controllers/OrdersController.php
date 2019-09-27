@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use App\Authorizable;
 use App\AvailableStatus;
 use App\Clients;
+use App\Http\Requests\OrderRequest;
 use App\Orders;
 use App\PaymentHistories;
 use App\PaymentStatus;
-use App\Pembeli;
 use App\Traits\ViewDataByLogin;
 use App\Units;
-use App\UnitTypes;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -84,10 +83,10 @@ class OrdersController extends Controller
             ->join('unit', 'orders.unit_id', '=', 'unit.id')
             ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
             ->join('floors', 'unit.floor_id', '=', 'floors.id')
-            ->join('available_status', 'orders.available_status_id', '=', 'available_status.id')
+            ->leftJoin('available_status', 'orders.available_status_id', '=', 'available_status.id')
             ->whereIn('orders.id', $orderId);
 
-        $orders = $this->viewData($orders, 'orders.user_id');
+        // $orders = $this->viewData($orders, 'orders.user_id');
         $orders = $orders->get();
         
         return DataTables::of($orders)->addColumn('action', function($order)
@@ -145,23 +144,38 @@ class OrdersController extends Controller
     {
         $unit_id = $request->query('id');
         $detailUnit = $unit = DB::table('unit')
-        ->select('unit.unit_name', 'unit.large as large', 'unit_types.name as unit_type_name', 'floors.name as floor', 'unit.price as price')
+        ->select([
+            'unit.unit_number', 
+            'unit.unit_name', 
+            'unit.large as large', 
+            'unit_types.name as unit_type_name', 
+            'floors.name as floor', 
+            'unit.price as price', 
+            'views.name as view_name', 
+            'towers.name as tower_name',
+            'clients.id as client_id',
+        ])
         ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
         ->join('floors', 'unit.floor_id', '=', 'floors.id')
+        ->join('views', 'unit.view_id', '=', 'views.id')
+        ->join('towers', 'unit.tower_id', '=', 'towers.id')
+        ->leftJoin('orders', 'unit.id', '=', 'orders.unit_id')
+        ->leftJoin('clients', 'orders.client_id', '=', 'clients.id')
         ->where("unit.id", "=", $unit_id)
         ->first();
-        if(empty($detailUnit)){
-            return redirect(route('units.index'));
+
+        if(auth()->user()->hasRole('kasir')){
+            $clients = DB::table('clients')->get();
+        }else{
+            $clients = DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get();
         }
-        // die($unit_id);
         $options = [
             'type' => 'create',
             'unit' => $detailUnit,
-            'clients' => DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get(),
+            'clients' => $clients,
             'payment_statuss' => PaymentStatus::all(),
             'payment_methods' => PaymentHistories::PAYMENT_METHOD
         ];
-        // dd($options);die;
 
         return view('layouts.orders.form', $options);
     }
@@ -172,19 +186,29 @@ class OrdersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(OrderRequest $request)
     {
-        $file = $request->file('transaction_file')->store(env("TRANSACTION_DIR").date("Y/m/d"));
+        $file = "";
+        if($request->hasFile('transaction_file')){
+            $file = $request->file('transaction_file')->store(env("TRANSACTION_DIR").date("Y/m/d"));
+        }
+
         //insert to tabel order
         DB::transaction(function() use ($request, $file)
         {
-            $orderID = DB::table('orders')->insertGetId([
-                'order_number' => "ORDER_".rand(1, 1000),
-                'client_id' => $request->client,
-                'user_id' => auth()->user()->id,
-                'unit_id' => $request->unit_id,
-                // 'available_status_id' => $request->available_status,
-            ]);
+            $findOrder = DB::table('orders')->where('unit_id', '=', $request->unit_id)->first();
+            if($findOrder == null){
+                $orderID = DB::table('orders')->insertGetId([
+                    'order_number' => "ORDER_".rand(1, 1000),
+                    'client_id' => $request->client,
+                    'user_id' => auth()->user()->id,
+                    'unit_id' => $request->unit_id,
+                    // 'available_status_id' => $request->available_status,
+                ]);
+            }else{
+                $orderID = $findOrder->id;
+            }
+
             $pr = DB::table("payment_histories")->insert([
                 'order_id' => $orderID,
                 'user_id' => auth()->user()->id,

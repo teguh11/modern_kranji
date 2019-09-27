@@ -21,30 +21,41 @@ $(function(){
         ?>
         <div class="box-body">
           <div class="row">
-            <div class="col-md-12">
-              <h3>Detail Unit</h3>
+            <div class="col-xs-12">
+              <h2 class="page-header">
+                <i class="fa fa-globe"></i> Detail Unit.
+              </h2>
             </div>
           </div>
           <div class="row">
-            <div class="col-xs-6 col-md-4">
-              <label for="">Nama Unit</label>
-              <div>{{$unit->unit_name}}</div>
-            </div>
-            <div class="col-md-4 col-xs-6 ">
-              <label for="">Tipe Unit</label>
-              <div>{{$unit->unit_type_name}}</div>
-            </div>
-            <div class="col-md-4 col-xs-6 ">
-              <label for="">Luas Unit</label>
-              <div>{{$unit->large}}</div>
-            </div>
-            <div class="col-md-4 col-xs-6 ">
-              <label for="">Lantai</label>
-              <div>{{$unit->floor}}</div>
-            </div>
-            <div class="col-md-4 col-xs-6 ">
-              <label for="">Harga</label>
-              <div>{{number_format($unit->price, 0, ",", ".")}}</div>
+            <div class="col-xs-12 table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Nomor Unit</th>
+                    <th>Nama Unit</th>
+                    <th>Tipe Unit</th>
+                    <th>Lantai</th>
+                    <th>Pemandangan</th>
+                    <th>Luas</th>
+                    <th>Harga</th>
+                    <th>Tower</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <tr>
+                    <td>{{$unit->unit_number}}</td>
+                    <td>{{$unit->unit_name}}</td>
+                    <td>{{$unit->unit_type_name}}</td>
+                    <td>{{$unit->floor}}</td>
+                    <td>{{$unit->view_name}}</td>
+                    <td>{{$unit->large}}</td>
+                    <td>{{number_format($unit->price, 0, ",", ".")}}</td>
+                    <td>{{$unit->tower_name}}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -54,59 +65,29 @@ $(function(){
             @method('PUT')
           <?php endif;?>
           <div class="box-body">
-            {{-- <div class="row">
-              <div class="col-md-6">
-                <div class="form-group @error('user') has-error @enderror">
-                  <label for="nama">User</label>
-                  <select class="form-control" name="user">
-                    @foreach ($users as $user)
-                      <option value="{{$user->id}}" {{old('user') == $user->id ? "selected" : isset($data) && $data->user_id == $user->id ? "selected" : ""}}>{{$user->name}}</option>
-                    @endforeach
-                  </select>
-                </div>      
-              </div>
-            </div> --}}
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group @error('client') has-error @enderror">
                   <label for="client">Konsumen</label>
-                  <select class="form-control" name="client" id="client">
+                  @php
+                      $disabled = (auth()->user()->hasRole('kasir') ? "disabled" : "");
+                  @endphp
+                  <select class="form-control" name="client" id="client" {{isset($unit->client_id) && $unit->client_id != null ? "disabled":""}}>
                     @foreach ($clients as $client)
-                      <option value="{{$client->id}}" {{old('client') == $client->id ? "selected" : isset($data) && $data->client_id == $client->id ? "selected" : ""}}>{{$client->name}}</option>
+                      <option value="{{$client->id}}" {{old('client') == $client->id ? "selected" : isset($unit->client_id) && $unit->client_id == $client->id ? "selected" : ""}}>{{$client->name}}</option>
                     @endforeach
                   </select>
                 </div>
               </div>
             </div>
-
-            {{-- <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                    <label>Unit</label>
-                    <select class="form-control" name="unit" id="unit">
-                      @foreach ($units as $unit)
-                        <option value="{{$unit->id}}" {{old('unit') == $unit->id ? "selected" : isset($data) && $data->unit_id == $unit->id ? "selected" : ""}}>{{$unit->unit_name}}</option>
-                      @endforeach
-                    </select>
-                  </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-6">
-                <ul class="list-group">
-                    <li class="list-group-item">Nama Unit : <b><div class="unit_name-detail"></div></b></li>
-                    <li class="list-group-item">Tipe Unit : <b><div class="unit_type-detail"></div></b></li>
-                    <li class="list-group-item">Luas : <b><div class="large-detail"></div></b></li>
-                    <li class="list-group-item">Lantai : <b><div class="floor-detail"></div></b></li>
-                    <li class="list-group-item">Harga : <b><div class="price-detail"></div></b></li>
-                  </ul>
-              </div>
-            </div> --}}
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
                   <label>Status</label>
-                  <select class="form-control" name="payment_status">
+                  @php
+                      $disabled = (auth()->user()->hasRole('kasir') ? "disabled" : "");
+                  @endphp
+                  <select class="form-control" name="payment_status" {{$disabled}}>
                     @foreach ($payment_statuss as $payment_status)
                       <option value="{{$payment_status->id}}"  {{old('payment_status') == $payment_status->id ? "selected":""}} >{{$payment_status->name}}</option>
                     @endforeach
@@ -118,7 +99,10 @@ $(function(){
               <div class="col-md-6">
                 <div class="form-group">
                   <label>Payment Method</label>
-                  <select class="form-control" name="payment_method">
+                  @php
+                      $disabled = (auth()->user()->hasRole('kasir') ? "disabled" : "");
+                  @endphp
+                  <select class="form-control" name="payment_method" {{$disabled}}>
                     @foreach ($payment_methods as $payment_method_id => $payment_method_name)
                       <option value="{{$payment_method_id}}"  {{old('payment_method') == $payment_method_id ? "selected":""}} >{{$payment_method_name}}</option>
                     @endforeach
@@ -140,6 +124,7 @@ $(function(){
                 </div>
               </div>
             </div>
+            @role('kasir')
             <div class="row">
               <div class="col-md-4">
                 <div class="form-group @error('transaction_file') has-error @enderror">
@@ -153,6 +138,7 @@ $(function(){
                 </div>
               </div>
             </div>
+            @endrole
             <input type="hidden" name="unit_id" value="{{app('request')->query('id')}}">
           <!-- /.box-body -->
           <div class="box-footer">

@@ -33,7 +33,8 @@ class UnitsController extends Controller
             'tipe_units' => UnitTypes::where('status', 1)->get(), 
             'lantais'=> Floors::where('status', 1)->get(),
             'towers' => Towers::where('status', 1)->get(),
-            'views' => Views::where('status', 1)->get()
+            'views' => Views::where('status', 1)->get(),
+            'clients' => DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get(),
         ];
         return view('layouts.units.index', $options);
         //
@@ -42,11 +43,14 @@ class UnitsController extends Controller
     public function data(Request $request)
     {
         $units = DB::table('unit')->select(['unit.id','unit_number', 'unit_name', 'unit_types.name as unit_type', 'floors.name as floor', 'towers.name as tower', 'large', 'price', 'unit_total', 'unit_stock', 
-        'unit.unit_type_id', 'unit.floor_id', 'unit.tower_id', 'unit.view_id'
+        'unit.unit_type_id', 'unit.floor_id', 'unit.tower_id', 'unit.view_id',
+        'clients.name as client_name', 'clients.id as client_id'
         ])
         ->join('unit_types','unit.unit_type_id', '=', 'unit_types.id')
         ->join('floors','unit.floor_id', '=', 'floors.id')
         ->join('towers','unit.tower_id', '=', 'towers.id')
+        ->leftJoin('orders','unit.id', '=', 'orders.unit_id')
+        ->leftJoin('clients','orders.client_id', '=', 'clients.id')
         ->get();
         
         $datatables = DataTables::of($units)
@@ -72,38 +76,27 @@ class UnitsController extends Controller
                     return $row['view_id'] == $request->get('view') ? true : false;
                 });
             }
+            if($request->get('client') != null){
+                $instance->collection = $instance->collection->filter(function ($row) use ($request) {
+                    return $row['client_id'] == $request->get('client') ? true : false;
+                });
+            }
         });
         $datatables->addColumn('action', function($unit){
-            // return '<a href="'.route('units.edit',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
-            
-            return '<a href="'.route('units.edit',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>
-                    <a href="'.route('orders.create',['id' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Order</a>';
+            $links = "";
+            if(auth()->user()->hasRole('administrator')){
+                $links = '<a href="'.route('units.edit',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>
+                <a href="'.route('orders.create',['id' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Order</a>';
+            }elseif (auth()->user()->hasRole(['sales', 'kasir'])) {
+                $links = '<a href="'.route('units.show',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> View</a>
+                <a href="'.route('orders.create',['id' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Order</a>';
+            }
+            return $links;
         })
         ->editColumn('price', '{{number_format($price, "0", ", ", ".")}}')
         ->editColumn('unit_total', '{{number_format($unit_total, "0", ", ", ".")}}');
 
         return $datatables->make(true);
-        // ->filter(function ($query) use ($request)
-        // {
-        //     if($request->has('unit_type')){
-        //         $query->where('unit_type_id', '=', $request->unit_type);
-        //     }
-        //     if($request->has('floor')){
-        //         $query->where('floor_id', '=', $request->floor);
-        //     }
-        //     if($request->has('tower')){
-        //         $query->where('tower_id', '=', $request->tower);
-        //     }
-        //     if($request->has('view')){
-        //         $query->where('view_id', '=', $request->view);
-        //     }
-        // })
-        // ->addColumn('action', function($unit){
-        //     return '<a href="'.route('units.edit',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
-        // })
-        // ->editColumn('price', '{{number_format($price, "0", ", ", ".")}}')
-        // ->editColumn('unit_total', '{{number_format($unit_total, "0", ", ", ".")}}')
-        // ->make(true);
     }
 
     /**
@@ -162,13 +155,57 @@ class UnitsController extends Controller
     public function show(Request $request, $id)
     {
         $unit = DB::table('unit')
-        ->select('unit.unit_name', 'unit.large as large', 'unit_types.name as unit_type_name', 'floors.name as floor', 'unit.price as price')
-        ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
-        ->join('floors', 'unit.floor_id', '=', 'floors.id')
-        ->where("unit.id", "=", $id)
-        ->first();
-        echo json_encode($unit);
-        //
+                ->select([
+                    'clients.name as client_name',
+                    'clients.handphone as client_phone',
+                    'clients.address as client_address',
+                    'users.name as user_name',
+                    'users.email as user_email',
+                    'unit.unit_number as unit_number',
+                    'unit.large',
+                    'unit.price',
+                    'unit.unit_name as unit_name',
+                    'unit_types.name as unit_type_name',
+                    'floors.name as floor_name',
+                    'views.name as view_name',
+                    'towers.name as tower_name',
+                    'orders.order_number as order_number',
+                    'orders.created_at as order_date',
+                    'orders.id as order_id',
+                ])
+                ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
+                ->join('floors', 'unit.floor_id', '=', 'floors.id')
+                ->join('views', 'unit.view_id', '=', 'views.id')
+                ->join('towers', 'unit.tower_id', '=', 'towers.id')
+                ->join('orders', 'unit.id', '=', 'orders.unit_id')
+                ->join('clients', 'orders.client_id', '=', 'clients.id')
+                ->join('users', 'orders.user_id', '=', 'users.id')
+                ->join('available_status', 'unit.available_status_id', '=', 'available_status.id')
+                
+                ->where('unit.id', '=', $id)->first();
+        if($unit == null){
+            return redirect(route('units.index'));
+        }
+        $transactionHistory = DB::table('payment_histories')
+                ->select([
+                    'payment_histories.payment_number',
+                    'payment_histories.nominal',
+                    'payment_histories.payment_date',
+                    'payment_histories.refundable_status',
+                    'payment_histories.valid_transaction',
+                    'payment_histories.payment_method',
+                    'users.name as user_name',
+                    'payment_status.name as payment_status_name'
+                ])
+                ->join('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
+                ->join('users', 'payment_histories.user_id', '=', 'users.id')
+                ->where('payment_histories.order_id', '=', $unit->order_id)
+                ->paginate(10);
+        $options = [
+            'unit' => $unit,
+            'transactionHistory' => $transactionHistory 
+        ];
+        return view('layouts.units.view', $options);
     }
 
     /**
@@ -228,4 +265,6 @@ class UnitsController extends Controller
     {
         //
     }
+
+
 }
