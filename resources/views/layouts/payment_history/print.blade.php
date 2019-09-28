@@ -1,117 +1,106 @@
 @extends('themes.adminlte.print')
 @section('content')
   <section class="invoice">
-    <div class="row">
-      <div class="col-md-12">
-        <div class="box box-primary">
-          <div class="box-body">
-            <div class="row">
-              <div class="col-xs-12">
-                <h2 class="page-header">
-                  <i class="fa fa-globe"></i> Modern Kranji Apartment.
-                  <small class="pull-right">Date: 2/10/2014</small>
-                </h2>
-              </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2 class="page-header">
+            <i class="fa fa-globe"></i> Modern Kranji Apartment.
+            <small class="pull-right">Date: 2/10/2014</small>
+          </h2>
+        </div>
+      </div>
+      <div class="row invoice-info">
+        <div class="col-sm-4 invoice-col">
+          <div class="row">
+            <div class="col-xs-12">
+                <strong>Detail Konsumen</strong>
             </div>
           </div>
-          <!-- /.box-header -->
-          <!-- form start -->
-          <div class="box-body">
-            <div class="row">
-              <div class="col-sm-4">
-                <div class="row">
-                  <div class="col-xs-12">
-                      <strong>Detail Konsumen</strong>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-xs-12">
-                    <address>
-                      {{$unit->client_name}} <br>
-                      {{$unit->client_phone}} <br>
-                      {{$unit->client_address}}
-                    </address>
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-4">
-                <div class="row">
-                  <div class="col-xs-12">
-                      <strong>Detail Sales</strong>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-xs-12">
-                    <address>
-                      {{$unit->user_name}} <br>
-                      {{$unit->user_email}}
-                    </address>
-                  </div>
-                </div>
-              </div>
-              <div class="col-sm-4">
-                <div class="row">
-                  <div class="col-xs-12">
-                      <strong>Order</strong>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-xs-12">
-                    <address>
-                      <strong>Nomor Order :</strong>{{$unit->order_number}} <br>
-                      <strong>Tanggal Order :</strong>{{$unit->order_date}} <br>
-                    </address>
-                  </div>
-                </div>
-              </div>
+          <div class="row">
+            <div class="col-xs-12">
+              <address>
+                {{$unit->client_name}} <br>
+                {{$unit->client_phone}} <br>
+                {{$unit->client_address}}
+              </address>
             </div>
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Nomor Unit</th>
-                    <th>Nama Unit</th>
-                    <th>Tipe Unit</th>
-                    <th>Lantai</th>
-                    <th>Pemandangan</th>
-                    <th>Luas</th>
-                    <th>Harga</th>
-                    <th>Tower</th>
-                  </tr>
-                </thead>
-                <tbody>
-    
-                  <tr>
-                    <td>{{$unit->unit_number}}</td>
-                    <td>{{$unit->unit_name}}</td>
-                    <td>{{$unit->unit_type_name}}</td>
-                    <td>{{$unit->floor_name}}</td>
-                    <td>{{$unit->view_name}}</td>
-                    <td>{{$unit->large}}</td>
-                    <td>{{number_format($unit->price, 0, ",", ".")}}</td>
-                    <td>{{$unit->tower_name}}</td>
-                  </tr>
-                </tbody>
-              </table>
+          </div>
+        </div>
+        <div class="col-sm-4 invoice-col">
+          <div class="row">
+            <div class="col-xs-12">
+                <strong>Detail Sales</strong>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12">
+              <address>
+                {{$unit->user_name}} <br>
+                {{$unit->user_email}}
+              </address>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-4 invoice-col">
+          <div class="row">
+            <div class="col-xs-12">
+                <strong>Order</strong>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12">
+              <address>
+                <strong>Nomor Order :</strong>{{$unit->order_number}} <br>
+                <strong>Tanggal Order :</strong>{{$unit->order_date}} <br>
+              </address>
             </div>
           </div>
         </div>
       </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Nomor Unit</th>
+                <th>Nama Unit</th>
+                <th>Tipe Unit</th>
+                <th>Lantai</th>
+                <th>Pemandangan</th>
+                <th>Luas</th>
+                <th>Harga</th>
+                <th>Tower</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr>
+                <td>{{$unit->unit_number}}</td>
+                <td>{{$unit->unit_name}}</td>
+                <td>{{$unit->unit_type_name}}</td>
+                <td>{{$unit->floor_name}}</td>
+                <td>{{$unit->view_name}}</td>
+                <td>{{$unit->large}}</td>
+                <td>{{number_format($unit->price, 0, ",", ".")}}</td>
+                <td>{{$unit->tower_name}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+
     <div class="row">
       <div class="col-xs-12">
-        <div class="box box-primary">
-          <div class="box-body">
-            <div class="row">
-              <div class="col-xs-12">
-                <h3 class="page-header">
-                  History Transaksi
-                </h3>
-              </div>
-            </div>
+        <div class="row">
+          <div class="col-xs-12">
+              History Transaksi
           </div>
-    
-          <div class="box-body">
+        </div>
+        <div class="row">
+          <div class="col-xs-12">
             <div class="table-responsive">
               <table class="table table-striped">
                 <thead>

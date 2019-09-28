@@ -38,14 +38,6 @@
         <div class="box-header">
           <h3 class="box-title">Orders</h3>
         </div>
-        {{-- <div class="box-body">
-          <div class="row">
-            <div class="col-xs-12 col-sm-4 pull-right">
-              <a href="{{route('orders.create')}}" class="btn btn-block btn-info btn-sm">Tambah Data</a>
-            </div>
-          </div>
-        </div> --}}
-
         <!-- /.box-header -->
         <div class="box-body">
           <table id="list-pembeli" class="table table-bordered table-striped" style="width:100%">

@@ -13,7 +13,10 @@
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('themes.adminlte.home');
+});
+Route::get('/home', function () {
+    return view('themes.adminlte.home');
 });
 
 Auth::routes();
@@ -60,4 +63,4 @@ Route::post('/roles/{id}/storepermission', 'RolesController@storepermission')->n
 Route::get("/order/payment/print", 'PaymentHistoryController@print')->name('payment-history.print');
 
 
-Route::get('/home', 'HomeController@index')->name('home');
+// Route::get('/home', 'HomeController@index')->name('home');
