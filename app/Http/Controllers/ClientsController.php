@@ -63,8 +63,13 @@ class ClientsController extends Controller
      */
     public function store(ClientRequest $request)
     {
-        $file = $request->file('identity_file')->store(env("CLIENT_DIR").date("Y/m/d"));
         $request->validated();
+        $file = "";
+        if($request->hasFile('identity_file')){
+            $file = $request->file('identity_file')->store(env("CLIENT_DIR").date("Y/m/d"));
+            $file = str_replace("public/", "", $file);
+        }
+
         $insert = DB::table("clients")->insert([
             'user_id' => Auth::user()->id,
             'order_number' => "CL_". Auth::user()->id."_".strtotime(date("YmdHis")),
@@ -123,8 +128,13 @@ class ClientsController extends Controller
      */
     public function update(ClientRequest $request, $id)
     {
-        $file = $request->file('identity_file')->store(env("CLIENT_DIR").date("Y/m/d"));
-        $validateRequest = $request->validated();
+        $file = "";
+        if($request->hasFile('identity_file')){
+            $file = $request->file('identity_file')->store(env("CLIENT_DIR").date("Y/m/d"));
+            $file = str_replace("public/", "", $file);
+        }
+
+        $request->validated();
         $update = DB::table("clients")
             ->where('id', $id)
             ->update([
@@ -142,7 +152,6 @@ class ClientsController extends Controller
                 'account_name' => $request->account_name,
                 'account_number' => $request->account_number
             ]);
-
         return redirect(route('clients.index'));
     }
 

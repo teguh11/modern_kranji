@@ -59,8 +59,14 @@ class UnitsController extends Controller
         ->join('towers','unit.tower_id', '=', 'towers.id')
         ->leftJoin('orders','unit.id', '=', 'orders.unit_id')
         ->leftJoin('clients','orders.client_id', '=', 'clients.id')
-        ->leftJoin('available_status','unit.available_status_id', '=', 'available_status.id')
-        ->get();
+        ->leftJoin('available_status','unit.available_status_id', '=', 'available_status.id');
+
+
+        if(auth()->user()->hasRole('sales')){
+            $units = $units->whereNull('unit.available_status_id')
+            ->orWhere('orders.user_id', '=', auth()->user()->id);
+        }
+        $units->get();
         
         $datatables = DataTables::of($units)
         ->filter(function ($instance) use ($request)
@@ -98,13 +104,34 @@ class UnitsController extends Controller
         });
         $datatables->addColumn('action', function($unit){
             $link_edit_unit = '<a href="'.route('units.edit',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
-            $link_create_order = '<a href="'.route('orders.create',['id' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Order</a>';
-            $link_view_unit = '<a href="'.route('units.show',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> View</a>';
+            $link_create_order = '<a href="'.route('orders.create',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Order</a>';
+            $link_view_unit = '<a href="'.route('units.show',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> History</a>';
             $links = "";
             if(auth()->user()->hasRole('administrator')){
-                $links = $link_edit_unit;
+                if($unit->available_status_id == null){
+                    $links = $link_edit_unit;
+                }
             }elseif (auth()->user()->hasRole(['sales', 'kasir'])) {
-                $links = $link_view_unit.$link_create_order;
+                if(auth()->user()->can('view-units') && $unit->client_id != null){
+                    $links .= $link_view_unit;
+                }
+                if(auth()->user()->can('create-orders')){
+                    $links .= $link_create_order;
+                }
+                if(auth()->user()->can('edit-units')){
+                    $links .= $link_edit_unit;
+                }
+
+
+                // if(auth()->user()->hasRole(['sales'])){
+                //     if($unit->client_id == null){
+                //         $links = $link_create_order;
+                //     }else{
+                //         $links = $link_view_unit.$link_create_order;
+                //     }
+                // }elseif (auth()->user()->can(['kasir'])) {
+                //     $links = $link_view_unit;
+                // }
             }
             return $links;
         })
@@ -150,8 +177,6 @@ class UnitsController extends Controller
             'view_id' => $request->view,
             'large' => str_replace(",","", $request->large),
             'price' => str_replace(",","", $request->price),
-            // 'unit_total' => str_replace(",","", $request->unit_total),
-            // 'unit_stock' => str_replace(",","", $request->unit_total),
             'status' => 1
         ]);
 
@@ -169,6 +194,7 @@ class UnitsController extends Controller
      */
     public function show(Request $request, $id)
     {
+        
         $unit = DB::table('unit')
                 ->select([
                     'clients.name as client_name',
@@ -236,9 +262,13 @@ class UnitsController extends Controller
      */
     public function edit(Request $request, $id)
     {
+        $unit = Units::where('id', $id)->first();
+        if($unit->available_status_id != null){
+            return redirect(route('units.index'))->with('error', "Unit ".$unit->unit_name." Tidak Bisa di Rubah!");
+        }
         $options = [
             'type' => 'update', 
-            'data' => Units::where('id', $id)->first(), 
+            'data' => $unit, 
             'tipe_units' => UnitTypes::where('status', 1)->get(), 
             'lantais'=> Floors::where('status', 1)->get(),
             'towers' => Towers::where('status', 1)->get(),

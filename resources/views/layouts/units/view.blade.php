@@ -116,6 +116,10 @@
             <table class="table table-striped">
               <thead>
                 <tr>
+                  @role("kasir")
+                    <th>Aksi</th>
+                  @endrole
+                  <th>Valid?</th>
                   <th>No Pembayaran</th>
                   <th>Nominal</th>
                   <th>Dibuat Oleh</th>
@@ -123,15 +127,18 @@
                   <th>Pembayaran Untuk</th>
                   <th>Metode Pembayaran</th>
                   <th>Status Pengembalian</th>
-                  <th>Valid?</th>
-                  @role("kasir")
-                    <th>Aksi</th>
-                  @endrole
                 </tr>
               </thead>
               <tbody>
                 @foreach ($transactionHistory as $item)
-                  <tr class="{{$item->valid_transaction == 1?"bg-green":""}}">
+                  <tr>
+                    @role("kasir")
+                    <td>
+                      <a target="_blank" href="{{route('payment-history.print', ['payment_history' => $item->id, 'order' => $item->order_id, 'unit' => $unit->id])}}" class="label label-primary">Print</a>
+                      <a href="{{route('orders.edit', ['payment_history' => $item->id, 'order' => $item->order_id, 'unit' => $unit->id])}}" class="label label-primary">Validasi</a>
+                    </td>
+                    @endrole
+                    <td>@php echo $item->valid_transaction == 0 ? '<span class="label label-danger">NOT VALID</span>' : '<span class="label label-success">VALID</span>'; @endphp</td>
                     <td>{{$item->payment_number}}</td>
                     <td>{{number_format($item->nominal, 0, ",", ".")}}</td>
                     <td>{{$item->user_name}}</td>
@@ -139,13 +146,7 @@
                     <td>{{$item->payment_status_name}}</td>
                     <td>{{$item->payment_method == 0 ? "Cash" : "Transfer"}}</td>
                     <td>{{$item->refundable_status == 0 ? "Belum" : "Sudah"}}</td>
-                    <td>{{$item->valid_transaction == 0 ? "Tidak" : "Sudah"}}</td>
-                    @role("kasir")
-                    <td>
-                      <a target="_blank" href="{{route('payment-history.print', ['payment_history' => $item->id, 'order' => $item->order_id, 'unit' => $unit->id])}}" class="btn btn-small btn-primary">Print</a>
-                      <a href="{{route('orders.edit', ['payment_history' => $item->id, 'order' => $item->order_id, 'unit' => $unit->id])}}" class="btn btn-small btn-primary">Validasi</a>
-                    </td>
-                    @endrole
+                    
                   </tr>    
                 @endforeach
               </tbody>

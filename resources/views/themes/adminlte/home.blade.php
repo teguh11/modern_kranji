@@ -1,0 +1,1 @@
+@extends('themes.adminlte.app')

@@ -13,6 +13,7 @@ use App\Traits\ViewDataByLogin;
 use App\Units;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use SebastianBergmann\CodeCoverage\Report\Xml\Unit;
 use Yajra\DataTables\DataTables;
@@ -46,25 +47,26 @@ class OrdersController extends Controller
     public function data()
     {
         $orders = DB::table('orders')
-            ->select('orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.unit_name as unit_name', 
+            ->select('orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.id as unit_id', 'unit.unit_name as unit_name', 
             'unit.large as large', 'unit.price as price', 'unit_types.name as unit_type', 'floors.name as floor', 'available_status.name as status')
-            ->join('clients', 'orders.client_id', '=', 'clients.id')
-            ->join('users', 'orders.user_id', '=', 'users.id')
-            ->join('unit', 'orders.unit_id', '=', 'unit.id')
+            ->leftJoin('clients', 'orders.client_id', '=', 'clients.id')
+            ->leftJoin('users', 'orders.user_id', '=', 'users.id')
+            ->leftJoin('unit', 'orders.unit_id', '=', 'unit.id')
             ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
             ->join('floors', 'unit.floor_id', '=', 'floors.id')
             ->leftJoin('available_status', 'orders.available_status_id', '=', 'available_status.id');
-            $orders = $this->viewData($orders, 'orders.user_id');
+            
+            if(auth()->user()->hasRole('sales')){
+                $orders = $orders->whereNull('unit.available_status_id')
+                ->orWhere('orders.user_id', '=', auth()->user()->id);
+            }
             $orders = $orders->get();
         return DataTables::of($orders)->addColumn('action', function($order)
         {
-            return 
-            '<a href="'.route('orders.edit',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>
-             <a href="'.route('payment-history.create',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Bayar</a>';
+            return '<a href="'.route('units.show',['unit' => $order->unit_id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> History</a>';
         })
         ->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
         ->make(true);
-        //
     }
 
     public function status($status)
@@ -75,9 +77,9 @@ class OrdersController extends Controller
     public function dataByStatus(Request $request)
     {
         $orderId = $this->getOrderByStatus($request->status);
-
-        $orders = DB::table('orders')
-            ->select('orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.unit_name as unit_name', 
+        if(!empty($orderId)){
+            $orders = DB::table('orders')
+            ->select('orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.id as unit_id', 'unit.unit_name as unit_name', 
             'unit.large as large', 'unit.price as price', 'unit_types.name as unit_type', 'floors.name as floor', 'available_status.name as status')
             ->join('clients', 'orders.client_id', '=', 'clients.id')
             ->join('users', 'orders.user_id', '=', 'users.id')
@@ -87,14 +89,22 @@ class OrdersController extends Controller
             ->leftJoin('available_status', 'orders.available_status_id', '=', 'available_status.id')
             ->whereIn('orders.id', $orderId);
 
+            if(auth()->user()->hasRole('sales')){
+                $orders->where(function($query){
+                    $query->whereNull('unit.available_status_id')
+                    ->orWhere('orders.user_id', '=', auth()->user()->id);
+                });
+            }
+            $orders = $orders->get();
+        }else{
+            $orders = [];
+        }
+    
         // $orders = $this->viewData($orders, 'orders.user_id');
-        $orders = $orders->get();
         
         return DataTables::of($orders)->addColumn('action', function($order)
         {
-            return 
-            '<a href="'.route('orders.edit',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>
-             <a href="'.route('payment-history.create',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Bayar</a>';
+            return '<a href="'.route('units.show',['unit' => $order->unit_id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> History</a>';
         })
         ->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
         ->make(true);
@@ -107,16 +117,16 @@ class OrdersController extends Controller
         $arr_data = [];
         switch ($status) {
             case 'reserved':
-                $arr_data = [2];
+                $arr_data = PaymentStatus::RESERVED;
                 break;
             case 'booking':
-                $arr_data = [2, 3];
+                $arr_data = PaymentStatus::BOOKING;
                 break;
             case 'dp':
-                $arr_data = [2, 3, 5];
+                $arr_data = PaymentStatus::DP;
                 break;
             case 'cash-bertahap':
-                $arr_data = [2, 3, 5, 4];
+                $arr_data = PaymentStatus::CASH_BERTAHAP;
                 break;
             default:
                 break;
@@ -143,38 +153,49 @@ class OrdersController extends Controller
      */
     public function create(Request $request)
     {
-        $unit_id = $request->query('id');
+        $unit_id = $request->query('unit');
         $detailUnit = $unit = DB::table('unit')
         ->select([
             'unit.unit_number', 
             'unit.unit_name', 
             'unit.large as large', 
+            'unit.available_status_id as available_status_id', 
             'unit_types.name as unit_type_name', 
             'floors.name as floor', 
             'unit.price as price', 
             'views.name as view_name', 
             'towers.name as tower_name',
             'clients.id as client_id',
+            'clients.name as client_name',
+            'clients.handphone as client_phone',
+            'clients.address as client_address',
+            'users.name as user_name',
+            'users.email as user_email',
+            'orders.order_number as order_number',
+            'orders.created_at as order_date',
+            'orders.id as order_id',
         ])
         ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
         ->join('floors', 'unit.floor_id', '=', 'floors.id')
         ->join('views', 'unit.view_id', '=', 'views.id')
         ->join('towers', 'unit.tower_id', '=', 'towers.id')
         ->leftJoin('orders', 'unit.id', '=', 'orders.unit_id')
+        ->leftJoin('users', 'orders.user_id', '=', 'users.id')
         ->leftJoin('clients', 'orders.client_id', '=', 'clients.id')
         ->where("unit.id", "=", $unit_id)
         ->first();
-
         if(auth()->user()->hasRole('kasir')){
             $clients = DB::table('clients')->get();
         }else{
             $clients = DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get();
         }
+
+        $payment_status_id = ($unit->available_status_id == null || $unit->available_status_id == 1 ? PaymentStatus::BOOKING : array_values(array_diff(PaymentStatus::LUNAS, PaymentStatus::BOOKING))); 
         $options = [
             'type' => 'create',
             'unit' => $detailUnit,
             'clients' => $clients,
-            'payment_statuss' => PaymentStatus::all(),
+            'payment_statuss' => PaymentStatus::find($payment_status_id),
             'payment_methods' => PaymentHistories::PAYMENT_METHOD
         ];
 
@@ -204,7 +225,6 @@ class OrdersController extends Controller
                     'client_id' => $request->client,
                     'user_id' => auth()->user()->id,
                     'unit_id' => $request->unit_id,
-                    // 'available_status_id' => $request->available_status,
                 ]);
             }else{
                 $orderID = $findOrder->id;
@@ -223,7 +243,7 @@ class OrdersController extends Controller
                 // 'refundable_status' => $request->refundable_status
             ]);
         });
-        return redirect(route('orders.index'));
+        return redirect(route('units.index'));
         //
     }
 
@@ -255,16 +275,26 @@ class OrdersController extends Controller
             'unit.unit_name', 
             'unit.large as large', 
             'unit.id as unit_id', 
+            'unit.available_status_id',
             'unit_types.name as unit_type_name', 
             'floors.name as floor', 
             'unit.price as price', 
             'views.name as view_name', 
             'towers.name as tower_name',
             'clients.id as client_id',
+            'clients.name as client_name',
+            'clients.handphone as client_phone',
+            'clients.address as client_address',
             'payment_histories.payment_status_id as payment_status',
             'payment_histories.payment_method as payment_method',
             'payment_histories.nominal as nominal',
             'payment_histories.id as payment_history_id',
+            'payment_histories.valid_transaction as valid_transaction',
+            'users.name as user_name',
+            'users.email as user_email',
+            'orders.order_number as order_number',
+            'orders.created_at as order_date',
+            'orders.id as order_id',
         ])
         ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
         ->join('floors', 'unit.floor_id', '=', 'floors.id')
@@ -272,6 +302,7 @@ class OrdersController extends Controller
         ->join('towers', 'unit.tower_id', '=', 'towers.id')
         ->leftJoin('orders', 'unit.id', '=', 'orders.unit_id')
         ->leftJoin('clients', 'orders.client_id', '=', 'clients.id')
+        ->leftJoin('users', 'orders.user_id', '=', 'users.id')
         ->leftJoin('payment_histories', 'orders.id', '=', 'payment_histories.order_id')
         ->where("unit.id", "=", $unit_id)
         ->where("orders.id", "=", $order_id)
@@ -314,6 +345,7 @@ class OrdersController extends Controller
             $file = "";
             if($request->hasFile('transaction_file')){
                 $file = $request->file('transaction_file')->store(env("TRANSACTION_DIR").date("Y/m/d"));
+                $file = str_replace("public/", "", $file);
             }
 
             DB::table('payment_histories')

@@ -5,8 +5,8 @@ trait Authorizable
 {
     private $abilities = [
         'index' => 'list',
-        'edit' => 'update',
         'show' => 'view',
+        'edit' => 'update',
         'update' => 'update',
         'create' => 'create',
         'store' => 'create',

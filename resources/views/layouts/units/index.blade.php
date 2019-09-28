@@ -55,124 +55,126 @@
 @section('content')
   <div class="row">
     <div class="col-xs-12">
-        <div class="box collapsed-box">
-          <div class="box-header with-border">
-            <h3 class="box-title">Advance Search</h3>
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                <i class="fa fa-minus"></i></button>
-              <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                <i class="fa fa-times"></i></button>
-            </div>
+      <div class="box collapsed-box">
+        <div class="box-header with-border">
+          <h3 class="box-title">Advance Search</h3>
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+              <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+              <i class="fa fa-times"></i></button>
           </div>
-          <div class="box-body">
-            <form method="get" id="advance-search" action="#">
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Pemilik</label>
-                    <select class="form-control" name="client" id="client">
-                      <option value=""></option>
-                      @foreach ($clients as $client)
-                        <option value="{{$client->id}}" {{old('client') == $client->id ? "selected" : ""}}>{{$client->name}}</option>
-                      @endforeach
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Status</label>
-                    <select class="form-control" name="available_status" id="available_status">
-                      <option value=""></option>
-                      @foreach ($available_statuss as $available_status)
-                        <option value="{{$available_status->id}}" {{old('client') == $available_status->id ? "selected" : ""}}>{{$available_status->name}}</option>
-                      @endforeach
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Tipe</label>
-                    <select class="form-control" name="unit_type" id="unit_type">
-                      <option value=""></option>
-                      @foreach ($tipe_units as $tipe_unit)
-                        <option value="{{$tipe_unit->id}}" {{old('unit_type') == $tipe_unit->id ? "selected" : isset($data) && $data->unit_type_id == $tipe_unit->id ? "selected" : ""}}>{{$tipe_unit->name}}</option>
-                      @endforeach
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Lantai</label>
-                    <select class="form-control" name="floor" id="floor">
-                      <option value=""></option>
-                      @foreach ($lantais as $lantai)
-                        <option value="{{$lantai->id}}" {{old('floor') == $lantai->id ? "selected" : isset($data) && $data->floor_id == $lantai->id ? "selected" : ""}}>{{$lantai->name}}</option>
-                      @endforeach
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Tower</label>
-                    <select class="form-control" name="tower" id="tower">
-                      <option value=""></option>
-                      @foreach ($towers as $tower)
-                        <option value="{{$tower->id}}" {{old('tower') == $tower->id ? "selected" : isset($data) && $data->tower_id == $tower->id ? "selected" : ""}}>{{$tower->name}}</option>
-                      @endforeach
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Views</label>
-                    <select class="form-control" name="view" id="view">
-                      <option value=""></option>
-                      @foreach ($views as $view)
-                        <option value="{{$view->id}}" {{old('view') == $view->id ? "selected" : isset($data) && $data->view_id == $view->id ? "selected" : ""}}>{{$view->name}}</option>
-                      @endforeach
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-4">
-                  <button type="submit" class="btn btn-primary">Submit</button>
-                  <button type="reset" class="btn btn-primary" id="reset">Reset</button>
-                  
-                </div>
-              </div>
-            </form>
-          </div>
-          <!-- /.box-body -->
-          <div class="box-footer">
-            Footer
-          </div>
-          <!-- /.box-footer-->
         </div>
-        <div class="box">
-    
+        <div class="box-body">
+          <form method="get" id="advance-search" action="#">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Pemilik</label>
+                  <select class="form-control" name="client" id="client">
+                    <option value=""></option>
+                    @foreach ($clients as $client)
+                      <option value="{{$client->id}}" {{old('client') == $client->id ? "selected" : ""}}>{{$client->name}}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Status</label>
+                  <select class="form-control" name="available_status" id="available_status">
+                    <option value=""></option>
+                    @foreach ($available_statuss as $available_status)
+                      <option value="{{$available_status->id}}" {{old('client') == $available_status->id ? "selected" : ""}}>{{$available_status->name}}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Tipe</label>
+                  <select class="form-control" name="unit_type" id="unit_type">
+                    <option value=""></option>
+                    @foreach ($tipe_units as $tipe_unit)
+                      <option value="{{$tipe_unit->id}}" {{old('unit_type') == $tipe_unit->id ? "selected" : isset($data) && $data->unit_type_id == $tipe_unit->id ? "selected" : ""}}>{{$tipe_unit->name}}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Lantai</label>
+                  <select class="form-control" name="floor" id="floor">
+                    <option value=""></option>
+                    @foreach ($lantais as $lantai)
+                      <option value="{{$lantai->id}}" {{old('floor') == $lantai->id ? "selected" : isset($data) && $data->floor_id == $lantai->id ? "selected" : ""}}>{{$lantai->name}}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Tower</label>
+                  <select class="form-control" name="tower" id="tower">
+                    <option value=""></option>
+                    @foreach ($towers as $tower)
+                      <option value="{{$tower->id}}" {{old('tower') == $tower->id ? "selected" : isset($data) && $data->tower_id == $tower->id ? "selected" : ""}}>{{$tower->name}}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Views</label>
+                  <select class="form-control" name="view" id="view">
+                    <option value=""></option>
+                    @foreach ($views as $view)
+                      <option value="{{$view->id}}" {{old('view') == $view->id ? "selected" : isset($data) && $data->view_id == $view->id ? "selected" : ""}}>{{$view->name}}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="reset" class="btn btn-primary" id="reset">Reset</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="box">
         <div class="box-header">
           <h3 class="box-title">Units</h3>
         </div>
-
+        @if (session('error'))
         <div class="box-body">
-          <div class="row">
-            <div class="col-xs-12 col-sm-4 pull-right">
-              <a href="{{route('units.create')}}" class="btn btn-block btn-info btn-sm">Tambah Data</a>
-            </div>
+          <div class="alert alert-danger">
+            {{ session('error') }}
           </div>
         </div>
+        @endif
+        @if (auth()->user()->can('create-units'))
+          <div class="box-body">
+            <div class="row">
+              <div class="col-xs-12 col-sm-4 pull-right">
+                <a href="{{route('units.create')}}" class="btn btn-block btn-info btn-sm">Tambah Data</a>
+              </div>
+            </div>
+          </div>
+        @endif
 
         <!-- /.box-header -->
         <div class="box-body">

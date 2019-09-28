@@ -28,13 +28,65 @@
       <div class="box box-primary">
         <!-- form start -->
         <div class="box-body">
-          <div class="row">
-            <div class="col-xs-12">
-              <h2 class="page-header">
-                <i class="fa fa-globe"></i> Detail Unit.
-              </h2>
+            <div class="row">
+              <div class="col-xs-12">
+                <h2 class="page-header">
+                  <i class="fa fa-globe"></i> Detail Unit
+                </h2>
+              </div>
             </div>
-          </div>
+
+          @if ($unit->available_status_id != null)
+            <div class="row">
+              <div class="col-md-4">
+                <div class="row">
+                  <div class="col-xs-12">
+                      <strong>Detail Konsumen</strong>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-xs-12">
+                    <address>
+                      {{$unit->client_name}} <br>
+                      {{$unit->client_phone}} <br>
+                      {{$unit->client_address}}
+                    </address>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="row">
+                  <div class="col-xs-12">
+                      <strong>Detail Sales</strong>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-xs-12">
+                    <address>
+                      {{$unit->user_name}} <br>
+                      {{$unit->user_email}}
+                    </address>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="row">
+                  <div class="col-xs-12">
+                      <strong>Order</strong>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-xs-12">
+                    <address>
+                      <strong>Nomor Order :</strong>{{$unit->order_number}} <br>
+                      <strong>Tanggal Order :</strong>{{$unit->order_date}} <br>
+                    </address>
+                  </div>
+                </div>
+              </div>
+            </div>
+          @endif
+
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -64,17 +116,23 @@
             </table>
           </div>
         </div>
-        @php
-          $action = $type == 'update' ? route('orders.update', ['payment_history' => $unit->payment_history_id, 'order' => 1, 'unit' => $unit->unit_id]): route('orders.store');
-        @endphp
-        <form role="form" action="{{$action}}" method="POST" enctype="multipart/form-data">
-          @csrf
-          <?php if($type=='update'):?>
-            @method('PUT')
-          <?php endif;?>
-          <div class="box-body">
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box box-primary">
+        <div class="box-body">
+          @php
+            $action = $type == 'update' ? route('orders.update', ['payment_history' => $unit->payment_history_id, 'order' => 1, 'unit' => $unit->unit_id]): route('orders.store');
+          @endphp
+          <form role="form" action="{{$action}}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <?php if($type=='update'):?>
+              @method('PUT')
+            <?php endif;?>
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="form-group @error('client') has-error @enderror">
                   <label for="client">Konsumen</label>
                   @php
@@ -88,8 +146,9 @@
                 </div>
               </div>
             </div>
+
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="form-group">
                   <label>Status</label>
                   @php
@@ -104,7 +163,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="form-group">
                   <label>Payment Method</label>
                   @php
@@ -151,10 +210,10 @@
                 <div class="form-group @error('valid_transaction') has-error @enderror">
                   <label for="transaction_file">Verify Transaction ?</label>
                   <label class="radio-inline">
-                    <input type="radio" name="valid_transaction" class="form-control minimal" value="0" {{old("valid_transaction")==0?"checked":""}}>No
+                    <input type="radio" name="valid_transaction" class="form-control minimal" value="0" {{old("valid_transaction")==0?"checked":$unit->valid_transaction == 0 ? "checked" : ""}}>No
                   </label>
                   <label class="radio-inline">
-                    <input type="radio" name="valid_transaction" class="form-control minimal" value="1" {{old("valid_transaction")==1?"checked":""}}>Yes
+                    <input type="radio" name="valid_transaction" class="form-control minimal" value="1" {{old("valid_transaction")==1?"checked":$unit->valid_transaction == 1 ? "checked" : ""}}>Yes
                   </label>
                   @error('valid_transaction')
                     <span class="help-block" role="alert">
@@ -165,16 +224,17 @@
               </div>
             </div>
             @endrole
-            <input type="hidden" name="unit_id" value="{{app('request')->query('id')}}">
-          <!-- /.box-body -->
-          <div class="box-footer">
-            <div class="row">
-              <div class="col-sm-12">
-                  <button type="submit" class="btn btn-primary">Submit</button>
+            <input type="hidden" name="unit_id" value="{{app('request')->query('unit')}}">
+            <!-- /.box-body -->
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-sm-12">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
               </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   </div>

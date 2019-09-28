@@ -1,5 +1,26 @@
 @extends('themes.adminlte.app')
-
+@push('scripts')
+<script>
+    $(function(){
+      function readURL(input) {
+        if (input.files && input.files[0]) {
+          var reader = new FileReader();
+          
+          reader.onload = function(e) {
+            $('.img-container').show();
+            $('.img-preview').attr('src', e.target.result);
+          }
+          
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+      
+      $("#identity_file").change(function() {
+        readURL(this);
+      });
+    });
+</script>
+@endpush
 @section('content')
   <div class="row">
     <div class="col-md-12">
@@ -61,7 +82,7 @@
             <div class="row">
               <div class="col-md-4">
                 <div class="form-group @error('identity_file') has-error @enderror">
-                  <label for="identity_no">Foto KTP</label>
+                  <label for="identity_file">Foto KTP</label>
                   <input type="file" class="form-control" id="identity_file" placeholder="" name="identity_file" />
                   @error('identity_file')
                     <span class="help-block" role="alert">
@@ -71,6 +92,20 @@
                 </div>
               </div>
             </div>
+                
+            @if ($type == "update" && $data->identity_file != "")
+              <div class="row img-container">
+                <div class="col-md-4">
+                  <img class="form-group img-preview img-responsive" src="{{env('IMAGE_URL').$data->identity_file}}">
+                </div>
+              </div>
+            @else
+              <div class="row img-container" style="display:none;">
+                <div class="col-md-4">
+                  <img class="form-group img-preview img-responsive" src="">
+                </div>
+              </div>
+            @endif
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group @error('bank') has-error @enderror">

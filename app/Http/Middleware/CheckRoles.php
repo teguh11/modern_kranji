@@ -28,6 +28,7 @@ class CheckRoles
 
     public function handle($request, Closure $next)
     {
+        
         // $routeName = explode('.', \Request::route()->getName());
         // dd($routeName);
         // $action = array_get($this->getAbilities(), $method);
@@ -37,6 +38,7 @@ class CheckRoles
         // $response = $next($request);
         // dd("testx");
         // return $response;
+        // dd("test");
         return $next($request);
     }
 }
