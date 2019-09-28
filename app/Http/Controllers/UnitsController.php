@@ -52,7 +52,7 @@ class UnitsController extends Controller
         $units = DB::table('unit')->select(['unit.id','unit_number', 'unit_name', 'unit_types.name as unit_type', 'floors.name as floor', 'towers.name as tower', 'large', 'price', 'unit_total', 'unit_stock', 
         'unit.unit_type_id', 'unit.floor_id', 'unit.tower_id', 'unit.view_id',
         'clients.name as client_name', 'clients.id as client_id',
-        'available_status.name as available_status_name', 'available_status.id as available_status_id'
+        'available_status.name as available_status_name', 'unit.available_status_id as unit_available_status'
         ])
         ->join('unit_types','unit.unit_type_id', '=', 'unit_types.id')
         ->join('floors','unit.floor_id', '=', 'floors.id')
@@ -60,46 +60,40 @@ class UnitsController extends Controller
         ->leftJoin('orders','unit.id', '=', 'orders.unit_id')
         ->leftJoin('clients','orders.client_id', '=', 'clients.id')
         ->leftJoin('available_status','unit.available_status_id', '=', 'available_status.id');
-
-
         if(auth()->user()->hasRole('sales')){
-            $units = $units->whereNull('unit.available_status_id')
-            ->orWhere('orders.user_id', '=', auth()->user()->id);
+            if($request->get('client') == null &&
+            $request->get('available_status') == null &&
+            $request->get('unit_type') == null &&
+            $request->get('floor') == null &&
+            $request->get('tower') == null &&
+            $request->get('view') == null){
+                $units->whereNull('unit.available_status_id');
+            }
+
+            $units->orWhere('orders.user_id', '=', auth()->user()->id);
         }
         $units->get();
         
         $datatables = DataTables::of($units)
-        ->filter(function ($instance) use ($request)
+        ->filter(function ($query) use ($request)
         {
             if($request->get('unit_type') != null){
-                $instance->collection = $instance->collection->filter(function ($row) use ($request) {
-                    return $row['unit_type_id'] == $request->get('unit_type') ? true : false;
-                });
+                $query->where('unit_type_id', '=', $request->get('unit_type'));
             }
             if($request->get('floor') != null){
-                $instance->collection = $instance->collection->filter(function ($row) use ($request) {
-                    return $row['floor_id'] == $request->get('floor') ? true : false;
-                });
+                $query->where('floor_id', '=', $request->get('floor'));
             }
             if($request->get('tower') != null){
-                $instance->collection = $instance->collection->filter(function ($row) use ($request) {
-                    return $row['tower_id'] == $request->get('tower') ? true : false;
-                });
+                $query->where('tower_id', '=', $request->get('tower'));
             }
             if($request->get('view') != null){
-                $instance->collection = $instance->collection->filter(function ($row) use ($request) {
-                    return $row['view_id'] == $request->get('view') ? true : false;
-                });
+                $query->where('view_id', '=', $request->get('view'));
             }
             if($request->get('client') != null){
-                $instance->collection = $instance->collection->filter(function ($row) use ($request) {
-                    return $row['client_id'] == $request->get('client') ? true : false;
-                });
+                $query->where('client_id', '=', $request->get('client'));
             }
             if($request->get('available_status') != null){
-                $instance->collection = $instance->collection->filter(function ($row) use ($request) {
-                    return $row['available_status_id'] == $request->get('available_status') ? true : false;
-                });
+                $query->where('unit.available_status_id', '=', $request->get('available_status'));
             }
         });
         $datatables->addColumn('action', function($unit){
@@ -121,17 +115,6 @@ class UnitsController extends Controller
                 if(auth()->user()->can('edit-units')){
                     $links .= $link_edit_unit;
                 }
-
-
-                // if(auth()->user()->hasRole(['sales'])){
-                //     if($unit->client_id == null){
-                //         $links = $link_create_order;
-                //     }else{
-                //         $links = $link_view_unit.$link_create_order;
-                //     }
-                // }elseif (auth()->user()->can(['kasir'])) {
-                //     $links = $link_view_unit;
-                // }
             }
             return $links;
         })
