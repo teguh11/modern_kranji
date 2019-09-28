@@ -61,7 +61,6 @@ class PaymentHistoryController extends Controller
 
     public function data()
     {
-        // dd(\App\PaymentHistories::PAYMENT_METHOD[1]);
         $paymentHistories = DB::table('payment_histories')
             ->select(
                 'payment_histories.id',
@@ -241,7 +240,7 @@ class PaymentHistoryController extends Controller
                 ->join('orders', 'unit.id', '=', 'orders.unit_id')
                 ->join('clients', 'orders.client_id', '=', 'clients.id')
                 ->join('users', 'orders.user_id', '=', 'users.id')
-                ->join('available_status', 'unit.available_status_id', '=', 'available_status.id')
+                ->leftJoin('available_status', 'unit.available_status_id', '=', 'available_status.id')
                 
                 ->where('unit.id', '=', $request->query('unit'))->first();
         $transactionHistory = DB::table('payment_histories')

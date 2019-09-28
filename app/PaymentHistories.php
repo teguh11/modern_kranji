@@ -23,8 +23,8 @@ class PaymentHistories extends Model
     ];
     const RESERVED = [2];
     const BOOKING = [2,3];
-    const DP = [2,3,5];
-    const CASH_BERTAHAP = [2,3,5,4];
+    const DP = [2,3,4];
+    const CASH_BERTAHAP = [2,3,4,5];
 
     protected static function boot()
     {

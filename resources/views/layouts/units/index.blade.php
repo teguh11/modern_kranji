@@ -19,6 +19,7 @@
           url : '{{route('units.data')}}',
           data : function(d){
             d.client = $("#client").val()
+            d.available_status = $("#available_status").val()
             d.unit_type = $("#unit_type").val()
             d.floor = $("#floor").val()
             d.tower = $("#tower").val()
@@ -34,6 +35,7 @@
             {data: 'tower', name: 'tower'},
             {data:'large', name: 'large'},
             {data: 'price', name: 'price'},
+            {data: 'available_status_name', name: 'available_status_name'},
             {data: 'action', name: 'action'},
         ]
       });
@@ -69,10 +71,23 @@
                 <div class="col-md-4">
                   <div class="form-group">
                     <label>Pemilik</label>
-                    <select class="form-control" name="clientx" id="client">
+                    <select class="form-control" name="client" id="client">
                       <option value=""></option>
                       @foreach ($clients as $client)
                         <option value="{{$client->id}}" {{old('client') == $client->id ? "selected" : ""}}>{{$client->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Status</label>
+                    <select class="form-control" name="available_status" id="available_status">
+                      <option value=""></option>
+                      @foreach ($available_statuss as $available_status)
+                        <option value="{{$available_status->id}}" {{old('client') == $available_status->id ? "selected" : ""}}>{{$available_status->name}}</option>
                       @endforeach
                     </select>
                   </div>
@@ -172,6 +187,7 @@
                 <th>Tower</th>
                 <th>Luas</th>
                 <th>Harga</th>
+                <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>

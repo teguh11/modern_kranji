@@ -14,6 +14,7 @@ use App\Units;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use SebastianBergmann\CodeCoverage\Report\Xml\Unit;
 use Yajra\DataTables\DataTables;
 
 class OrdersController extends Controller
@@ -302,25 +303,45 @@ class OrdersController extends Controller
     public function update(Request $request, $id)
     {
         $rules = [];
-        $file = "";
 
         if($request->valid_transaction == 1){
             $rules = array_merge($rules, ['transaction_file' => 'required']);
         }
         $request->validate($rules);
         
-        if($request->hasFile('transaction_file')){
-            $file = $request->file('transaction_file')->store(env("TRANSACTION_DIR").date("Y/m/d"));
-        }
 
-        DB::table('payment_histories')
-        ->where('id', $request->query('payment_history'))
-        ->update([
-            'nominal' => str_replace(",","", $request->nominal),
-            'transaction_file' => $file,
-            'verified_by' => auth()->user()->id,
-            'valid_transaction' => $request->valid_transaction
-        ]);
+        DB::transaction(function() use ($request){
+            $file = "";
+            if($request->hasFile('transaction_file')){
+                $file = $request->file('transaction_file')->store(env("TRANSACTION_DIR").date("Y/m/d"));
+            }
+
+            DB::table('payment_histories')
+            ->where('id', $request->query('payment_history'))
+            ->update([
+                'nominal' => str_replace(",","", $request->nominal),
+                'transaction_file' => $file,
+                'verified_by' => auth()->user()->id,
+                'valid_transaction' => $request->valid_transaction
+            ]);
+            $ph = PaymentHistories::where('id', $request->query('payment_history'))->where('valid_transaction', 1)->first();
+
+            // ubah status unit jika transaksi yang terjadi sudah valid
+            if($ph != null){
+                if(in_array($ph->payment_status_id, AvailableStatus::RESERVED)){
+                    $available_status = 1;
+                }elseif (in_array($ph->payment_status_id, AvailableStatus::BOOKED)) {
+                    $available_status = 2;
+                }elseif (in_array($ph->payment_status_id, AvailableStatus::SOLD_OUT)) {
+                    $available_status = 3;
+                }else{
+                    $available_status = 0;
+                }
+    
+                DB::table('unit')->where('id', $request->query('unit'))->update(['available_status_id' => $available_status]);
+            }
+       });
+        
         return redirect(route('units.show',['unit' => $request->query('unit')]));
     }
 

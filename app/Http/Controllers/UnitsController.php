@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Authorizable;
+use App\AvailableStatus;
 use App\Floors;
 use App\Units;
 use App\UnitTypes;
@@ -29,12 +30,18 @@ class UnitsController extends Controller
      */
     public function index()
     {
+        if(auth()->user()->hasRole('kasir')){
+            $client =DB::table('clients')->get();
+        }else{
+            $client = DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get();
+        }
         $options = [
             'tipe_units' => UnitTypes::where('status', 1)->get(), 
             'lantais'=> Floors::where('status', 1)->get(),
             'towers' => Towers::where('status', 1)->get(),
             'views' => Views::where('status', 1)->get(),
-            'clients' => DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get(),
+            'available_statuss' => AvailableStatus::where('status', 1)->get(),
+            'clients' => $client,
         ];
         return view('layouts.units.index', $options);
         //
@@ -44,13 +51,15 @@ class UnitsController extends Controller
     {
         $units = DB::table('unit')->select(['unit.id','unit_number', 'unit_name', 'unit_types.name as unit_type', 'floors.name as floor', 'towers.name as tower', 'large', 'price', 'unit_total', 'unit_stock', 
         'unit.unit_type_id', 'unit.floor_id', 'unit.tower_id', 'unit.view_id',
-        'clients.name as client_name', 'clients.id as client_id'
+        'clients.name as client_name', 'clients.id as client_id',
+        'available_status.name as available_status_name', 'available_status.id as available_status_id'
         ])
         ->join('unit_types','unit.unit_type_id', '=', 'unit_types.id')
         ->join('floors','unit.floor_id', '=', 'floors.id')
         ->join('towers','unit.tower_id', '=', 'towers.id')
         ->leftJoin('orders','unit.id', '=', 'orders.unit_id')
         ->leftJoin('clients','orders.client_id', '=', 'clients.id')
+        ->leftJoin('available_status','unit.available_status_id', '=', 'available_status.id')
         ->get();
         
         $datatables = DataTables::of($units)
@@ -79,6 +88,11 @@ class UnitsController extends Controller
             if($request->get('client') != null){
                 $instance->collection = $instance->collection->filter(function ($row) use ($request) {
                     return $row['client_id'] == $request->get('client') ? true : false;
+                });
+            }
+            if($request->get('available_status') != null){
+                $instance->collection = $instance->collection->filter(function ($row) use ($request) {
+                    return $row['available_status_id'] == $request->get('available_status') ? true : false;
                 });
             }
         });
@@ -182,12 +196,14 @@ class UnitsController extends Controller
                 ->join('orders', 'unit.id', '=', 'orders.unit_id')
                 ->join('clients', 'orders.client_id', '=', 'clients.id')
                 ->join('users', 'orders.user_id', '=', 'users.id')
-                ->join('available_status', 'unit.available_status_id', '=', 'available_status.id')
+                ->leftJoin('available_status', 'unit.available_status_id', '=', 'available_status.id')
                 
                 ->where('unit.id', '=', $id)->first();
+
         if($unit == null){
             return redirect(route('units.index'));
         }
+
         $transactionHistory = DB::table('payment_histories')
                 ->select([
                     'payment_histories.id',
