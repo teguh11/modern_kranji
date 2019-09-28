@@ -13,7 +13,7 @@
 
 
 Route::get('/', function () {
-    return view('themes.adminlte.home');
+    return redirect(route('login'));
 });
 Route::get('/home', function () {
     return view('themes.adminlte.home');
