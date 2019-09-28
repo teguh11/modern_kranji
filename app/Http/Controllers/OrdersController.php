@@ -92,9 +92,9 @@ class OrdersController extends Controller
         
         return DataTables::of($orders)->addColumn('action', function($order)
         {
-            return 
-            '<a href="'.route('orders.edit',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>
-             <a href="'.route('payment-history.create',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Bayar</a>';
+            return '';
+            // '<a href="'.route('orders.edit',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>
+            //  <a href="'.route('payment-history.create',['order' => $order->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Bayar</a>';
         })
         ->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
         ->make(true);
