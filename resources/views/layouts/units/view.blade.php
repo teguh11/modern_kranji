@@ -1,5 +1,32 @@
 @extends('themes.adminlte.app')
-
+@push('scripts')
+  <script>
+    $(function() {
+      $('#viewHistory').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var payment_no = button.data('payment_no') // Extract info from data-* attributes
+        var nominal = button.data('nominal') // Extract info from data-* attributes
+        var payment_date = button.data('payment_date') // Extract info from data-* attributes
+        var payment_status = button.data('payment_status') // Extract info from data-* attributes
+        var payment_method = button.data('payment_method') // Extract info from data-* attributes
+        var valid_transaction = button.data('valid_transaction') // Extract info from data-* attributes
+        var transaction_file = button.data('transaction_file') // Extract info from data-* attributes
+        
+        var modal = $(this)
+        modal.find('#payment_no').text(payment_no)
+        modal.find('#nominal').text(nominal)
+        modal.find('#payment_date').text(payment_date)
+        modal.find('#payment_status').text(payment_status)
+        modal.find('#payment_method').text(payment_method)
+        modal.find('#valid_transaction').text(valid_transaction)
+        transaction_file = "{{env("IMAGE_URL")}}"+transaction_file
+        modal.find('#transaction_file').attr("src", transaction_file)
+        modal.find('#transaction_file_link').attr("href", transaction_file)
+      
+      })
+    })
+  </script>
+@endpush
 @section('content')
   <div class="row">
     <div class="col-md-12">
@@ -136,7 +163,17 @@
                     <td>
                       <a target="_blank" href="{{route('payment-history.print', ['payment_history' => $item->id, 'order' => $item->order_id, 'unit' => $unit->id])}}" class="label label-primary">Print</a>
                       <a href="{{route('orders.edit', ['payment_history' => $item->id, 'order' => $item->order_id, 'unit' => $unit->id])}}" class="label label-primary">Validasi</a>
-                      <a href="#" class="label label-primary" data-toggle="modal" data-target="#viewHistory">View</a>
+                      <a href="#" class="label label-primary" 
+                        data-toggle="modal" 
+                        data-target="#viewHistory"
+                        data-payment_no = "{{$item->payment_number}}"
+                        data-nominal = "{{$item->nominal}}"
+                        data-payment_date = "{{$item->payment_date}}"
+                        data-payment_status = "{{$item->payment_status_name}}"
+                        data-payment_method = "{{$item->payment_method == 0 ? "Cash" : "Transfer"}}"
+                        data-valid_transaction = "{{$item->valid_transaction == 0 ? "Not Valid":"Valid"}}"
+                        data-transaction_file = "{{$item->transaction_file}}"
+                      >View</a>
                     </td>
                     @endrole
                     <td>@php echo $item->valid_transaction == 0 ? '<span class="label label-danger">NOT VALID</span>' : '<span class="label label-success">VALID</span>'; @endphp</td>
@@ -167,32 +204,42 @@
 <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="viewHistory">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Modal title</h4>
+      </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-md-4">.col-md-4</div>
-          <div class="col-md-4 col-md-offset-4">.col-md-4 .col-md-offset-4</div>
+          <div class="col-md-4"><strong>Payment Number</strong></div>
+          <div class="col-md-8"><span id="payment_no"></span></div>
         </div>
         <div class="row">
-          <div class="col-md-3 col-md-offset-3">.col-md-3 .col-md-offset-3</div>
-          <div class="col-md-2 col-md-offset-4">.col-md-2 .col-md-offset-4</div>
+          <div class="col-md-4"><strong>Nominal</strong></div>
+          <div class="col-md-8"><span id="nominal"></span></div>
         </div>
         <div class="row">
-          <div class="col-md-6 col-md-offset-3">.col-md-6 .col-md-offset-3</div>
+          <div class="col-md-4"><strong>Tanggal Pembayaran</strong></div>
+          <div class="col-md-8"><span id="payment_date"></span></div>
         </div>
         <div class="row">
-          <div class="col-sm-9">
-            Level 1: .col-sm-9
-            <div class="row">
-              <div class="col-xs-8 col-sm-6">
-                Level 2: .col-xs-8 .col-sm-6
-              </div>
-              <div class="col-xs-4 col-sm-6">
-                Level 2: .col-xs-4 .col-sm-6
-              </div>
+          <div class="col-md-4"><strong>Untuk Pembayaran</strong></div>
+          <div class="col-md-8"><span id="payment_status"></span></div>
+        </div>
+        <div class="row">
+          <div class="col-md-4"><strong>Metode Pembayaran</strong></div>
+          <div class="col-md-8"><span id="payment_method"></span></div>
+        </div>
+        <div class="row">
+          <div class="col-md-4"><strong>Status Pembayaran</strong></div>
+          <div class="col-md-8"><span id="valid_transaction"></span></div>
+        </div>
+        <div class="row">
+            <div class="col-md-4"><strong>Bukti Transaksi</strong></div>
+            <div class="col-md-8">
+              <a href="" target="_blank" id="transaction_file_link"><img id="transaction_file" class="img-responsive"></a>
             </div>
           </div>
         </div>
-      </div>
     </div>
   </div>
 </div>

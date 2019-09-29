@@ -226,6 +226,7 @@ class UnitsController extends Controller
                     'payment_histories.refundable_status',
                     'payment_histories.valid_transaction',
                     'payment_histories.payment_method',
+                    'payment_histories.transaction_file',
                     'users.name as user_name',
                     'payment_status.name as payment_status_name'
                 ])
