@@ -109,12 +109,15 @@ class UnitsController extends Controller
                 if(auth()->user()->can('view-units') && $unit->client_id != null){
                     $links .= $link_view_unit;
                 }
-                if(auth()->user()->can('create-orders')){
-                    $links .= $link_create_order;
+                if(!auth()->user()->hasRole('kasir')){
+                    if(auth()->user()->can('create-orders')){
+                        $links .= $link_create_order;
+                    }
                 }
-                if(auth()->user()->can('edit-units')){
-                    $links .= $link_edit_unit;
-                }
+
+                // if(auth()->user()->can('edit-units')){
+                //     $links .= $link_edit_unit;
+                // }
             }
             return $links;
         })

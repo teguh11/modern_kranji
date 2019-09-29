@@ -32,13 +32,15 @@
         <div class="box-header">
           <h3 class="box-title">Customers</h3>
         </div>
-        <div class="box-body">
-          <div class="row">
-            <div class="col-xs-12 col-sm-4 pull-right">
-              <a href="{{route('clients.create')}}" class="btn btn-block btn-info btn-sm">Tambah Data</a>
+        @if (!auth()->user()->hasRole(['kasir', 'administrator']))
+          <div class="box-body">
+            <div class="row">
+              <div class="col-xs-12 col-sm-4 pull-right">
+                <a href="{{route('clients.create')}}" class="btn btn-block btn-info btn-sm">Tambah Data</a>
+              </div>
             </div>
           </div>
-        </div>
+        @endif
 
         <!-- /.box-header -->
         <div class="box-body">

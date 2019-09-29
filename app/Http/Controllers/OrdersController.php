@@ -190,15 +190,41 @@ class OrdersController extends Controller
             $clients = DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get();
         }
 
-        $payment_status_id = ($unit->available_status_id == null || $unit->available_status_id == 1 ? PaymentStatus::BOOKING : array_values(array_diff(PaymentStatus::LUNAS, PaymentStatus::BOOKING))); 
+        $reserved_payment_status = ($unit->available_status_id == null || $unit->available_status_id == 1 ? PaymentStatus::BOOKING : array_values(array_diff(PaymentStatus::LUNAS, PaymentStatus::BOOKING))); 
+        $x = DB::table('payment_histories')->select('payment_status_id')->distinct()
+        ->join('orders', 'payment_histories.order_id', '=', 'orders.id')
+        ->where('unit_id','=', $request->query('unit'))
+        ->whereNotIn('payment_status_id', [5])->get();
+
+        $y = collect($reserved_payment_status);
+        $diff = $y->diff($x->pluck('payment_status_id')->values());
+        $payment_status_id = $diff->values()->all();
+
+        $transactionHistory = DB::table('payment_histories')
+                ->select([
+                    'payment_histories.id',
+                    'payment_histories.order_id',
+                    'payment_histories.payment_number',
+                    'payment_histories.nominal',
+                    'payment_histories.payment_date',
+                    'payment_histories.refundable_status',
+                    'payment_histories.valid_transaction',
+                    'payment_histories.payment_method',
+                    'users.name as user_name',
+                    'payment_status.name as payment_status_name'
+                ])
+                ->join('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
+                ->join('users', 'payment_histories.user_id', '=', 'users.id')
+                ->where('payment_histories.order_id', '=', $unit->order_id)
+                ->paginate(10);
         
-        // dd($payment_status_id);
         $options = [
             'type' => 'create',
             'unit' => $detailUnit,
             'clients' => $clients,
             'payment_statuss' => PaymentStatus::find($payment_status_id),
-            'payment_methods' => PaymentHistories::PAYMENT_METHOD
+            'payment_methods' => PaymentHistories::PAYMENT_METHOD,
+            'transactionHistory' => $transactionHistory 
         ];
 
         return view('layouts.orders.form', $options);
@@ -316,13 +342,34 @@ class OrdersController extends Controller
         }else{
             $clients = DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get();
         }
+
+        $transactionHistory = DB::table('payment_histories')
+                ->select([
+                    'payment_histories.id',
+                    'payment_histories.order_id',
+                    'payment_histories.payment_number',
+                    'payment_histories.nominal',
+                    'payment_histories.payment_date',
+                    'payment_histories.refundable_status',
+                    'payment_histories.valid_transaction',
+                    'payment_histories.payment_method',
+                    'users.name as user_name',
+                    'payment_status.name as payment_status_name'
+                ])
+                ->join('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
+                ->join('users', 'payment_histories.user_id', '=', 'users.id')
+                ->where('payment_histories.order_id', '=', $unit->order_id)
+                ->paginate(10);
+
         $options = [
             'type' => 'update',
             'unit' => $detailUnit,
             'clients' => $clients,
             'payment_statuss' => PaymentStatus::all(),
-            'payment_methods' => PaymentHistories::PAYMENT_METHOD
+            'payment_methods' => PaymentHistories::PAYMENT_METHOD,
+            'transactionHistory' => $transactionHistory 
         ];
+
         return view('layouts.orders.form', $options);
     }
 
