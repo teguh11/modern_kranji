@@ -192,7 +192,7 @@ class OrdersController extends Controller
 
         $payment_status_id = ($unit->available_status_id == null || $unit->available_status_id == 1 ? PaymentStatus::BOOKING : array_values(array_diff(PaymentStatus::LUNAS, PaymentStatus::BOOKING))); 
         
-        dd($payment_status_id);
+        // dd($payment_status_id);
         $options = [
             'type' => 'create',
             'unit' => $detailUnit,
