@@ -37,7 +37,7 @@
                         <div class="col-sm-12">
                           MODULE {{strtoupper($title)}}
                         </div>
-                        hasPermissionTo      <div class="col-sm-12">                  
+                        <div class="col-sm-12">                  
                     @php
                         endif;
                     @endphp

@@ -32,7 +32,7 @@
         <div class="box-header">
           <h3 class="box-title">Customers</h3>
         </div>
-        @if (!auth()->user()->hasRole(['kasir', 'administrator']))
+        @can('create-clients')
           <div class="box-body">
             <div class="row">
               <div class="col-xs-12 col-sm-4 pull-right">
@@ -40,8 +40,7 @@
               </div>
             </div>
           </div>
-        @endif
-
+        @endcan
         <!-- /.box-header -->
         <div class="box-body">
           <table id="list-pembeli" class="table table-bordered table-striped" style="width:100%">

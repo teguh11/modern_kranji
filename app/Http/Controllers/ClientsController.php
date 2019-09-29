@@ -44,7 +44,11 @@ class ClientsController extends Controller
         return Datatables::of($clients)
         ->addColumn('action', function($client)
         {
-            return '<a href="'.route('clients.edit',['client' => $client->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+            if(auth()->user()->hasPermissionTo('update-clients')){
+                return '<a href="'.route('clients.edit',['client' => $client->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+            }else{
+                return "";
+            }
         })
         ->make(true);
     }
