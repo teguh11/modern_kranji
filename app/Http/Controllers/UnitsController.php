@@ -73,7 +73,7 @@ class UnitsController extends Controller
             $units->orWhere('orders.user_id', '=', auth()->user()->id);
         }
         $units->get();
-        
+        // dd($units->get());
         $datatables = DataTables::of($units)
         ->filter(function ($query) use ($request)
         {
@@ -102,7 +102,7 @@ class UnitsController extends Controller
             $link_view_unit = '<a href="'.route('units.show',['unit' => $unit->id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> History</a>';
             $links = "";
             if(auth()->user()->hasRole('administrator')){
-                if($unit->available_status_id == null){
+                if($unit->unit_available_status == null){
                     $links = $link_edit_unit;
                 }
             }elseif (auth()->user()->hasRole(['sales', 'kasir'])) {
