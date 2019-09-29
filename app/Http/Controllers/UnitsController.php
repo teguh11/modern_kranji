@@ -73,7 +73,7 @@ class UnitsController extends Controller
             $units->orWhere('orders.user_id', '=', auth()->user()->id);
         }
         $units->get();
-        // dd($units->get());
+
         $datatables = DataTables::of($units)
         ->filter(function ($query) use ($request)
         {

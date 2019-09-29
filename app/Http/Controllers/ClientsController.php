@@ -32,7 +32,15 @@ class ClientsController extends Controller
 
     public function data()
     {
-        $clients = Clients::select('id', 'name', 'email', 'handphone')->where("user_id", "=", Auth::user()->id)->get();
+        $clients = Clients::select(['clients.id', 'clients.name', 'clients.email', 'clients.handphone',
+            'users.id as user_id', 'users.name as user_name'
+        ]);
+        if(!auth()->user()->hasRole(['administrator', 'kasir'])){
+            $clients->where("user_id", "=", Auth::user()->id);
+        }
+        $clients->join('users', 'clients.user_id', '=', 'users.id');
+        $clients->get();
+
         return Datatables::of($clients)
         ->addColumn('action', function($client)
         {
