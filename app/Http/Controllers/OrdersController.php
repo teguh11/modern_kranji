@@ -47,25 +47,35 @@ class OrdersController extends Controller
     public function data()
     {
         $orders = DB::table('orders')
-            ->select('orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.id as unit_id', 'unit.unit_name as unit_name', 
-            'unit.large as large', 'unit.price as price', 'unit_types.name as unit_type', 'floors.name as floor', 'available_status.name as status')
+            ->select([
+                'orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.id as unit_id', 'unit.unit_name as unit_name', 
+                'unit.large as large', 'unit.price as price', 'unit_types.name as unit_type', 'floors.name as floor', 'available_status.name as status',
+                DB::raw('(SELECT COUNT(id) FROM payment_histories WHERE payment_histories.order_id = orders.id and valid_transaction=0) As pending_payment')
+            
+            ])
             ->leftJoin('clients', 'orders.client_id', '=', 'clients.id')
             ->leftJoin('users', 'orders.user_id', '=', 'users.id')
             ->leftJoin('unit', 'orders.unit_id', '=', 'unit.id')
             ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
             ->join('floors', 'unit.floor_id', '=', 'floors.id')
-            ->leftJoin('available_status', 'orders.available_status_id', '=', 'available_status.id');
+            ->leftJoin('available_status', 'unit.available_status_id', '=', 'available_status.id');
             
             if(auth()->user()->hasRole('sales')){
                 $orders = $orders->whereNull('unit.available_status_id')
                 ->orWhere('orders.user_id', '=', auth()->user()->id);
             }
             $orders = $orders->get();
+
         return DataTables::of($orders)->addColumn('action', function($order)
         {
             return '<a href="'.route('units.show',['unit' => $order->unit_id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> History</a>';
         })
         ->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
+        ->editColumn('pending_payment', function($order){
+            // return $order->pending_payment > 0 ? "<span>".$order->pending_payment."</span>":"";
+            return $order->pending_payment > 0 ? '<span class="label label-danger">'.$order->pending_payment.'</span>' : '<span class="label label-success">'.$order->pending_payment.'</span>';
+        })
+        ->rawColumns(['action', 'pending_payment'])
         ->make(true);
     }
 
@@ -80,13 +90,15 @@ class OrdersController extends Controller
         if(!empty($orderId)){
             $orders = DB::table('orders')
             ->select('orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.id as unit_id', 'unit.unit_name as unit_name', 
-            'unit.large as large', 'unit.price as price', 'unit_types.name as unit_type', 'floors.name as floor', 'available_status.name as status')
+            'unit.large as large', 'unit.price as price', 'unit_types.name as unit_type', 'floors.name as floor', 'available_status.name as status',
+            DB::raw('(SELECT COUNT(id) FROM payment_histories WHERE payment_histories.order_id = orders.id and valid_transaction=0) As pending_payment')
+            )
             ->join('clients', 'orders.client_id', '=', 'clients.id')
             ->join('users', 'orders.user_id', '=', 'users.id')
             ->join('unit', 'orders.unit_id', '=', 'unit.id')
             ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
             ->join('floors', 'unit.floor_id', '=', 'floors.id')
-            ->leftJoin('available_status', 'orders.available_status_id', '=', 'available_status.id')
+            ->leftJoin('available_status', 'unit.available_status_id', '=', 'available_status.id')
             ->whereIn('orders.id', $orderId);
 
             if(auth()->user()->hasRole('sales')){
@@ -107,6 +119,11 @@ class OrdersController extends Controller
             return '<a href="'.route('units.show',['unit' => $order->unit_id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> History</a>';
         })
         ->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
+        ->editColumn('pending_payment', function($order){
+            // return $order->pending_payment > 0 ? "<span>".$order->pending_payment."</span>":"";
+            return $order->pending_payment > 0 ? '<span class="label label-danger">'.$order->pending_payment.'</span>' : '<span class="label label-success">'.$order->pending_payment.'</span>';
+        })
+        ->rawColumns(['action', 'pending_payment'])
         ->make(true);
     }
 

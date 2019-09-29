@@ -14,6 +14,7 @@
         ajax: '{{action('OrdersController@dataByStatus', ['status'=> app('request')->status])}}',
         columns: [
             {data:'order_number', name: 'order_number'},
+            {data:'pending_payment', name: 'pending_payment'},
             {data:'client_name', name: 'client_name'},
             {data:'user_name', name: 'user_name'},
             {data: 'unit_name', name: 'unit_name'},
@@ -44,6 +45,7 @@
             <thead>
             <tr>
               <th>Order Number</th>
+              <th>Pending Validation</th>
               <th>Nama Konsumen</th>
               <th>Nama user</th>
               <th>Unit</th>
