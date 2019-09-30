@@ -61,6 +61,7 @@ class ClientsController extends Controller
     public function create()
     {
         $options = [
+            'required' => collect(ClientRequest::REQUIRED_FIELD)->keys()->all(),
             'type' => 'create',
             'banks' => Banks::select('id', 'name')->orderBy('name', 'asc')->get()
         ];

@@ -6,6 +6,14 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ClientRequest extends FormRequest
 {
+    const REQUIRED_FIELD = [
+        'name' => 'required',
+        'identity_no' => 'required|digits:16',
+        'address' => 'required',
+        'handphone' => 'required',
+        'email' => 'required|email',
+        // 'identity_file' => 'required|image'
+    ];
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -23,16 +31,6 @@ class ClientRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'name' => 'required',
-            'identity_no' => 'required|digits:16',
-            'address' => 'required',
-            'npwp' => 'required',
-            'telp_rumah' => 'required',
-            'telp_kantor' => 'required',
-            'handphone' => 'required',
-            'email' => 'required|email',
-            // 'identity_file' => 'required|image'
-        ];
+        return self::REQUIRED_FIELD;
     }
 }
