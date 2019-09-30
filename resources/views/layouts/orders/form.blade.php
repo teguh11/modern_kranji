@@ -122,13 +122,13 @@
   <div class="row">
     <div class="col-xs-12">
       <div class="box box-primary">
-        @if (empty($payment_statuss->all()))
+        {{-- @if (empty($payment_statuss->all()))
           <div class="box-body">
             <div class="alert alert-danger">
               Pembayaran Anda Belum di validasi Oleh kasir, Silahkan Hubungi kasir untuk memvalidasi pembayaran terlebih dahulu.
             </div>
           </div>
-        @else
+        @else --}}
           <div class="box-body">
             @php
               $action = $type == 'update' ? route('orders.update', ['payment_history' => $unit->payment_history_id, 'order' => 1, 'unit' => $unit->unit_id]): route('orders.store');
@@ -242,7 +242,7 @@
               </div>
             </form>
           </div>
-        @endif
+        {{-- @endif --}}
       </div>
     </div>
   </div>

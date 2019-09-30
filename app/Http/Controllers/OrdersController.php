@@ -206,8 +206,9 @@ class OrdersController extends Controller
         }else{
             $clients = DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get();
         }
-
+        dd($unit);
         $reserved_payment_status = ($unit->available_status_id == null || $unit->available_status_id == 1 ? PaymentStatus::BOOKING : array_values(array_diff(PaymentStatus::LUNAS, PaymentStatus::BOOKING))); 
+        
         $x = DB::table('payment_histories')->select('payment_status_id')->distinct()
         ->join('orders', 'payment_histories.order_id', '=', 'orders.id')
         ->where('unit_id','=', $request->query('unit'))
@@ -234,12 +235,12 @@ class OrdersController extends Controller
                 ->join('users', 'payment_histories.user_id', '=', 'users.id')
                 ->where('payment_histories.order_id', '=', $unit->order_id)
                 ->paginate(10);
-        
+        // dd(PaymentStatus::find($payment_status_id));
         $options = [
             'type' => 'create',
             'unit' => $detailUnit,
             'clients' => $clients,
-            'payment_statuss' => PaymentStatus::find($payment_status_id),
+            'payment_statuss' => PaymentStatus::find($reserved_payment_status),
             'payment_methods' => PaymentHistories::PAYMENT_METHOD,
             'transactionHistory' => $transactionHistory 
         ];
