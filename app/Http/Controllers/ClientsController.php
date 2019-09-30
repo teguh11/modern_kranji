@@ -125,6 +125,7 @@ class ClientsController extends Controller
         $client = Clients::where('id', $id)->first();
         $options = [
             'type' => 'update', 
+            'required' => collect(ClientRequest::REQUIRED_FIELD)->keys()->all(),
             'data' => $client, 
             'banks' => Banks::select('id', 'name')->orderBy('name', 'asc')->get()
         ];
