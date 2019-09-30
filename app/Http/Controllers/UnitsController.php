@@ -93,7 +93,11 @@ class UnitsController extends Controller
                 $query->where('client_id', '=', $request->get('client'));
             }
             if($request->get('available_status') != null){
-                $query->where('unit.available_status_id', '=', $request->get('available_status'));
+                if($request->get('available_status') == 99){
+                    $query->whereNull('unit.available_status_id');
+                }else{
+                    $query->where('unit.available_status_id', '=', $request->get('available_status'));
+                }
             }
         });
         $datatables->addColumn('action', function($unit){

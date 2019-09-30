@@ -86,6 +86,7 @@
                   <label>Status</label>
                   <select class="form-control" name="available_status" id="available_status">
                     <option value=""></option>
+                    <option value="99">Tersedia</option>
                     @foreach ($available_statuss as $available_status)
                       <option value="{{$available_status->id}}" {{old('available_status') == $available_status->id ? "selected" : ""}}>{{$available_status->name}}</option>
                     @endforeach
