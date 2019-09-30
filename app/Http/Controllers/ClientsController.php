@@ -142,30 +142,31 @@ class ClientsController extends Controller
      */
     public function update(ClientRequest $request, $id)
     {
-        $file = "";
+        $data = [
+            'user_id' => Auth::user()->id,
+            'name' => $request->name,
+            'email' => $request->email,
+            'identity_no' => $request->identity_no,
+            'npwp' => $request->npwp,
+            'telp_rumah' => $request->telp_rumah,
+            'telp_kantor' => $request->telp_kantor,
+            'handphone' => $request->handphone,
+            'address' => $request->address,
+            'bank_id' => $request->bank,
+            'account_name' => $request->account_name,
+            'account_number' => $request->account_number
+        ];
         if($request->hasFile('identity_file')){
             $file = $request->file('identity_file')->store(env("CLIENT_DIR").date("Y/m/d"));
             $file = str_replace("public/", "", $file);
+            
+            $data = array_merge($data,['identity_file' => $file]);
         }
 
         $request->validated();
         $update = DB::table("clients")
             ->where('id', $id)
-            ->update([
-                'user_id' => Auth::user()->id,
-                'name' => $request->name,
-                'email' => $request->email,
-                'identity_no' => $request->identity_no,
-                'identity_file' => $file,
-                'npwp' => $request->npwp,
-                'telp_rumah' => $request->telp_rumah,
-                'telp_kantor' => $request->telp_kantor,
-                'handphone' => $request->handphone,
-                'address' => $request->address,
-                'bank_id' => $request->bank,
-                'account_name' => $request->account_name,
-                'account_number' => $request->account_number
-            ]);
+            ->update($data);
         return redirect(route('clients.index'));
     }
 
