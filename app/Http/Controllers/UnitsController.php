@@ -118,12 +118,11 @@ class UnitsController extends Controller
                         $links .= $link_create_order;
                     }
                 }
-
-                // if(auth()->user()->can('edit-units')){
-                //     $links .= $link_edit_unit;
-                // }
             }
             return $links;
+        })
+        ->editColumn('available_status_name', function($unit){
+            return $unit->available_status_name == "" ? "Tersedia" : $unit->available_status_name; 
         })
         ->editColumn('price', '{{number_format($price, "0", ", ", ".")}}')
         ->editColumn('unit_total', '{{number_format($unit_total, "0", ", ", ".")}}');
