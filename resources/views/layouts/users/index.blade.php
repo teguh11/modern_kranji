@@ -14,6 +14,7 @@
         columns: [
             {data:'name', name: 'name'},
             {data:'email', name: 'email'},
+            {data:'office_name', name: 'office_name'},
             {data:'role', name: 'role'},
         ]
       });
@@ -44,6 +45,7 @@
             <tr>
               <th>Nama</th>
               <th>Email</th>
+              <th>Kantor</th>
               <th>Role</th>
             </tr>
             </thead>

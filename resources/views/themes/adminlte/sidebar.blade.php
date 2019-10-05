@@ -57,6 +57,17 @@
               <li><a href="{{route('views.index')}}"><i class="fa fa-users"></i> <span>VIEWS</span></a></li>
             </ul>
           </li>
+          <li class="treeview">
+            <a href="#">
+              <i class="fa fa-files-o"></i>
+              <span>REPORT</span>
+            </a>
+            <ul class="treeview-menu">
+              <li><a href="{{route('report.unit')}}"><i class="fa fa-users"></i> <span>PER UNIT</span></a></li>
+              <li><a href="{{route('report.order')}}"><i class="fa fa-circle-o"></i>PER ORDER</a></li>
+              <li><a href="{{route('report.transaction')}}"><i class="fa fa-circle-o"></i>PER TRANSAKSI</a></li>
+            </ul>
+          </li>
         @endif
       </ul>
     </section>

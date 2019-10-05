@@ -24,7 +24,8 @@ class OrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'nominal' => 'required'
+            'nominal' => 'required',
+            // 'order_dp_persen' => 'required',
         ];
     }
 }

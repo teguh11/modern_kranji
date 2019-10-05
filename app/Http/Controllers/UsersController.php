@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Authorizable;
 use App\Http\Requests\UserRequest;
-use App\ModelHasRoles;
+// use App\ModelHasRoles;
 use App\Roles;
+use App\Offices;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,8 +34,9 @@ class UsersController extends Controller
 
     public function data()
     {
-        $users = DB::table('users')->select(['users.name', 'users.email', 'roles.name as role'])
+        $users = DB::table('users')->select(['users.name', 'users.email', 'office.name as office_name','roles.name as role'])
             ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+            ->leftJoin('office', 'users.office_id', '=', 'office.id')
             ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')->get();
         return DataTables::of($users)->make(true);
         # code...
@@ -48,7 +50,8 @@ class UsersController extends Controller
     public function create()
     {
         $roles = Roles::all();
-        return view('layouts.users.form', ['type'=> 'create', 'roles' => $roles]);
+        $offices = Offices::all();
+        return view('layouts.users.form', ['type'=> 'create', 'roles' => $roles, 'offices' => $offices]);
     }
 
     /**
@@ -59,11 +62,13 @@ class UsersController extends Controller
      */
     public function store(UserRequest $request)
     {
+        // dd($request);
         $request->validated();
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'office_id' => $request->office
         ]);
         $user->assignRole($request->role);
 

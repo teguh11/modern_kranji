@@ -75,6 +75,18 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
+                    <label>Kantor</label>
+                    <select class="form-control" name="office">
+                      @foreach ($offices as $office)
+                        <option value="{{$office->id}}" {{old('office')}}>{{$office->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
                     <label>Role</label>
                     <select class="form-control" name="role">
                       @foreach ($roles as $role)

@@ -113,9 +113,21 @@ class UnitsController extends Controller
                 if(auth()->user()->can('view-units') && $unit->client_id != null){
                     $links .= $link_view_unit;
                 }
-                if(!auth()->user()->hasRole('kasir')){
-                    if(auth()->user()->can('create-orders')){
-                        $links .= $link_create_order;
+
+                // Jika Unit sudah memiliki status booked (2) maka sales tidak bisa create order
+                if(auth()->user()->hasRole('sales')){
+                    if($unit->unit_available_status < AvailableStatus::RESERVED_ID ){
+                        if(auth()->user()->can('create-orders')){
+                            $links .= $link_create_order;
+                        }
+                    }
+                }
+
+                if(auth()->user()->hasRole('kasir')){
+                    if($unit->unit_available_status >= AvailableStatus::RESERVED_ID ){
+                        if(auth()->user()->can('create-orders')){
+                            $links .= $link_create_order;
+                        }
                     }
                 }
             }
@@ -203,6 +215,11 @@ class UnitsController extends Controller
                     'orders.order_number as order_number',
                     'orders.created_at as order_date',
                     'orders.id as order_id',
+                    'orders.notes as order_notes',
+                    'orders.persen_dp as order_persen_dp',
+                    'orders.nominal_dp as order_nominal_dp',
+                    'orders.cicilan as order_cicilan',
+                    'orders.bunga as order_bunga'
                 ])
                 ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
                 ->join('floors', 'unit.floor_id', '=', 'floors.id')
