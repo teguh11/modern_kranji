@@ -87,6 +87,7 @@ class OrdersController extends Controller
     public function dataByStatus(Request $request)
     {
         $orderId = $this->getOrderByStatus($request->status);
+        // dd($orderId);
         if(!empty($orderId)){
             $orders = DB::table('orders')
             ->select('orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.id as unit_id', 'unit.unit_name as unit_name', 
@@ -154,7 +155,7 @@ class OrdersController extends Controller
         }
         array_push($having, "NOT SUM(payment_status_id NOT IN (".join(",", $arr_data)."))");
         $having = join(" AND ", $having);
-
+        // dd($having);
         $orderId = DB::table('payment_histories')->select('order_id')
             ->groupBy(['order_id'])
             ->havingRaw($having)

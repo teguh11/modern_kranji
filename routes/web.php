@@ -63,8 +63,11 @@ Route::post('/roles/{id}/storepermission', 'RolesController@storepermission')->n
 Route::get("/order/payment/print", 'PaymentHistoryController@print')->name('payment-history.print');
 
 Route::get("/report/unit", 'ReportController@unit')->name('report.unit');
+Route::get("/report/unit/data", 'ReportController@dataunit')->name('report.unit.data');
 Route::get("/report/order", 'ReportController@order')->name('report.order');
+Route::get("/report/order/data", 'ReportController@dataorder')->name('report.order.data');
 Route::get("/report/transaction", 'ReportController@transaction')->name('report.transaction');
+Route::get("/report/transaction/data", 'ReportController@datatransaction')->name('report.transaction.data');
 
 
 // Route::get('/home', 'HomeController@index')->name('home');
