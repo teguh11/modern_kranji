@@ -21,6 +21,11 @@ class PaymentHistories extends Model
         'No',
         'Yes'
     ];
+    const VALID_TRANSACTION = [
+        'No',
+        'Yes'
+    ];
+    
     const RESERVED = [2];
     const BOOKING = [2,3];
     const DP = [2,3,4];

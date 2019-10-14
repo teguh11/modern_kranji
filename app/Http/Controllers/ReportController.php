@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Authorizable;
 use App\AvailableStatus;
 use App\Floors;
+use App\PaymentHistories;
+use App\PaymentStatus;
 use App\Towers;
 use App\UnitTypes;
 use App\Views;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
@@ -30,6 +33,7 @@ class ReportController extends Controller
 				'towers' => Towers::where('status', 1)->get(),
 				'views' => Views::where('status', 1)->get(),
 				'available_statuss' => AvailableStatus::where('status', 1)->get(),
+				'payment_statuss' => PaymentStatus::where('status', 1)->get(),
 				'clients' => $client,
 		];
 		return view('layouts.report.unit', $options);
@@ -94,6 +98,17 @@ class ReportController extends Controller
 								$query->where('unit.available_status_id', '=', $request->get('available_status'));
 						}
 				}
+				if($request->get('payment_status') != null){
+					$orderId = $this->getOrderByStatus($request->get('payment_status'));
+					$query->whereIn('orders.id', $orderId);
+				}
+
+				if($request->get('date_range') != null){
+					$date = array_map('trim',explode("-", $request->get("date_range")));
+					$startDate =  Carbon::parse($date[0])->startOfDay();
+					$endDate = Carbon::parse($date[1])->endOfDay();
+					$query->whereBetween('orders.created_at', [$startDate, $endDate]);
+				}
 		});
 		$datatables->editColumn('available_status_name', function($unit){
 				return $unit->available_status_name == "" ? "Tersedia" : $unit->available_status_name; 
@@ -105,42 +120,39 @@ class ReportController extends Controller
 
 	public function order()
 	{
-			return view('layouts.report.order');
+		$options = [
+			'payment_statuss' => PaymentStatus::where('status', 1)->select(['id', 'name'])->get()
+		];
+		return view('layouts.report.order', $options);
 	}
 
 	public function dataorder(Request $request)
 	{
-		$orderId = $this->getOrderByStatus($request->status);
-		if(!empty($orderId)){
-				$orders = DB::table('orders')
-				->select('orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.id as unit_id', 'unit.unit_name as unit_name', 
-				'unit.large as large', 'unit.price as price', 'unit_types.name as unit_type', 'floors.name as floor', 'available_status.name as status',
-				DB::raw('(SELECT COUNT(id) FROM payment_histories WHERE payment_histories.order_id = orders.id and valid_transaction=0) As pending_payment')
-				)
-				->join('clients', 'orders.client_id', '=', 'clients.id')
-				->join('users', 'orders.user_id', '=', 'users.id')
-				->join('unit', 'orders.unit_id', '=', 'unit.id')
+		$orders = DB::table('orders')
+				->select([
+						'orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.id as unit_id', 'unit.unit_name as unit_name', 
+						'unit.large as large', 'unit.price as price', 'unit_types.name as unit_type', 'floors.name as floor', 'available_status.name as status',
+						DB::raw('(SELECT COUNT(id) FROM payment_histories WHERE payment_histories.order_id = orders.id and valid_transaction=0) As pending_payment')
+				
+				])
+				->leftJoin('clients', 'orders.client_id', '=', 'clients.id')
+				->leftJoin('users', 'orders.user_id', '=', 'users.id')
+				->leftJoin('unit', 'orders.unit_id', '=', 'unit.id')
 				->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
 				->join('floors', 'unit.floor_id', '=', 'floors.id')
-				->leftJoin('available_status', 'unit.available_status_id', '=', 'available_status.id')
-				->whereIn('orders.id', $orderId);
+				->leftJoin('available_status', 'unit.available_status_id', '=', 'available_status.id');
+				
+		$orders->get();
 
-				if(auth()->user()->hasRole('sales')){
-						$orders->where(function($query){
-								$query->whereNull('unit.available_status_id')
-								->orWhere('orders.user_id', '=', auth()->user()->id);
-						});
-				}
-				$orders = $orders->get();
-		}else{
-				$orders = [];
-		}
-
-		// $orders = $this->viewData($orders, 'orders.user_id');
-		
 		return DataTables::of($orders)->addColumn('action', function($order)
 		{
 				return '<a href="'.route('units.show',['unit' => $order->unit_id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> History</a>';
+		})
+		->filter(function($query) use ($request){
+			if($request->get('payment_status') != null){
+				$orderId = $this->getOrderByStatus($request->get('payment_status'));
+				$query->whereIn('orders.id', $orderId);
+			}
 		})
 		->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
 		->editColumn('pending_payment', function($order){
@@ -155,16 +167,16 @@ class ReportController extends Controller
 	{
 		$arr_data = [];
 		switch ($status) {
-			case 'reserved':
+			case 2:
 				$arr_data = PaymentStatus::RESERVED;
 				break;
-			case 'booking':
+			case 3:
 				$arr_data = PaymentStatus::BOOKING;
 				break;
-			case 'dp':
+			case 4:
 				$arr_data = PaymentStatus::DP;
 				break;
-			case 'cash-bertahap':
+			case 5:
 				$arr_data = PaymentStatus::CASH_BERTAHAP;
 				break;
 			default:
@@ -178,7 +190,6 @@ class ReportController extends Controller
 		array_push($having, "NOT SUM(payment_status_id NOT IN (".join(",", $arr_data)."))");
 		
 		$having = join(" AND ", $having);
-
 		$orderId = DB::table('payment_histories')->select('order_id')
 			->groupBy(['order_id'])
 			->havingRaw($having)
@@ -194,6 +205,47 @@ class ReportController extends Controller
 
 	public function datatransaction()
 	{
-			# code...
+			$paymentHistory = DB::table('payment_histories')
+			->select([
+				'orders.order_number as order_number',
+				'payment_status.name as payment_status_name',
+				'u1.name as user_name',
+				'u2.name as user_verified_by',
+				'payment_histories.payment_number as payment_number',
+				'payment_histories.nominal as nominal',
+				'payment_histories.payment_method as payment_method',
+				'payment_histories.payment_date as payment_date',
+				'payment_histories.status as status',
+				'payment_histories.refundable_status as refundable_status',
+				'payment_histories.valid_transaction as valid_transaction',
+			])
+			->join('orders', 'payment_histories.order_id', '=', 'orders.id')
+			->leftJoin('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
+			->leftJoin('users as u1', 'payment_histories.user_id', '=', 'u1.id')
+			->leftJoin('users as u2', 'payment_histories.verified_by', '=', 'u2.id')->get();
+			// dd($paymentHistory);
+
+			
+			// $paymentHistory->get();
+
+			return DataTables::of($paymentHistory)
+			->editColumn('nominal', '{{number_format($nominal, "0", ",", ".")}}')
+			->editColumn('payment_method', function($ph)
+			{
+				return PaymentHistories::PAYMENT_METHOD[$ph->payment_method];
+			})
+			->editColumn('status', function($ph)
+			{
+				return PaymentHistories::STATUS[$ph->status];
+			})
+			->editColumn('refundable_status', function($ph)
+			{
+				return PaymentHistories::REFUNDABLE_STATUS[$ph->refundable_status];
+			})
+			->editColumn('valid_transaction', function($ph)
+			{
+				return PaymentHistories::VALID_TRANSACTION[$ph->valid_transaction];
+			})
+			->make(true);
 	}
 }
