@@ -82,11 +82,11 @@
 
           // Total over all pages
           total = api
-            .column( 4)
+            .column(6)
             .data()
             .reduce( function (a, b) {
-              var cur_index = api.column(4).data().indexOf(b)
-              if(api.column(9).data()[cur_index] == "Yes"){
+              var cur_index = api.column(6).data().indexOf(b)
+              if(api.column(11).data()[cur_index] == "Yes"){
                 return intVal(a) + intVal(b);
               }else{
                 return intVal(a)
@@ -98,6 +98,12 @@
             new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format(total)
           );
         },
+        rowCallback: function (row, data) {
+          console.log(data.valid_transaction);
+          if ( data.valid_transaction == "No" ) {
+              $(row).addClass('danger');
+          }
+        }
       });
       $("#advance-search").submit(function(e) {
         console.log("test")
