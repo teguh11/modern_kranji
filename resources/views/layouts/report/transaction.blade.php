@@ -85,12 +85,12 @@
             .column(6)
             .data()
             .reduce( function (a, b) {
-              // var cur_index = api.column(6).data().indexOf(b)
-              // if(api.column(11).data()[cur_index] == "Yes"){
+              var cur_index = api.column(6).data().indexOf(b)
+              if(api.column(11).data()[cur_index] == "Yes"){
                 return intVal(a) + intVal(b);
-              // }else{
-              //   return intVal(a)
-              // }
+              }else{
+                return intVal(a)
+              }
             }, 0 );
 
           // Update footer
