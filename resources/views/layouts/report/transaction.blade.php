@@ -33,7 +33,7 @@
         dom: 'Bfrtip',
         scrollX : true,
         processing: true,
-        serverSide: true,
+        // serverSide: true,
         fixedColumns: true,
         ajax: {
           url : '{{route('report.transaction.data')}}',
