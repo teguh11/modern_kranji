@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Authorizable;
 use App\AvailableStatus;
+use App\Clients;
 use App\Floors;
 use App\PaymentHistories;
 use App\PaymentStatus;
 use App\Towers;
+use App\Units;
 use App\UnitTypes;
 use App\Views;
 use Carbon\Carbon;
@@ -60,7 +62,8 @@ class ReportController extends Controller
 			'available_status.id as available_status_id',
 			'available_status.name as available_status_name', 
 			'users.id as user_id',
-			'users.name as user_name'
+			'users.name as user_name',
+			DB::raw("(SELECT sum(nominal) as total from payment_histories where payment_histories.order_id = orders.id and valid_transaction = 1) as dana_masuk")
 		])
 		->join('views','unit.view_id', '=', 'views.id')
 		->join('unit_types','unit.unit_type_id', '=', 'unit_types.id')
@@ -113,7 +116,8 @@ class ReportController extends Controller
 		$datatables->editColumn('available_status_name', function($unit){
 				return $unit->available_status_name == "" ? "Tersedia" : $unit->available_status_name; 
 		})
-		->editColumn('unit_price', '{{number_format($unit_price, "0", ", ", ".")}}');
+		->editColumn('unit_price', '{{number_format($unit_price, "0", ", ", ".")}}')
+		->editColumn('dana_masuk', '{{number_format($dana_masuk, "0", ", ", ".")}}');
 
 		return $datatables->make(true);
 	}
@@ -133,7 +137,6 @@ class ReportController extends Controller
 						'orders.id as id', 'orders.order_number', 'clients.name as client_name', 'users.name as user_name', 'unit.id as unit_id', 'unit.unit_name as unit_name', 
 						'unit.large as large', 'unit.price as price', 'unit_types.name as unit_type', 'floors.name as floor', 'available_status.name as status',
 						DB::raw('(SELECT COUNT(id) FROM payment_histories WHERE payment_histories.order_id = orders.id and valid_transaction=0) As pending_payment')
-				
 				])
 				->leftJoin('clients', 'orders.client_id', '=', 'clients.id')
 				->leftJoin('users', 'orders.user_id', '=', 'users.id')
@@ -152,6 +155,14 @@ class ReportController extends Controller
 			if($request->get('payment_status') != null){
 				$orderId = $this->getOrderByStatus($request->get('payment_status'));
 				$query->whereIn('orders.id', $orderId);
+			}
+
+			if($request->get('date_range') != null){
+				$date = array_map('trim',explode("-", $request->get("date_range")));
+				$startDate =  Carbon::parse($date[0])->startOfDay();
+				$endDate = Carbon::parse($date[1])->endOfDay();
+
+				// $query->whereBetween('orders.created_at', [$startDate, $endDate]);
 			}
 		})
 		->editColumn('price', '{{number_format($price, "0", ",", ".")}}')
@@ -200,13 +211,19 @@ class ReportController extends Controller
 		
 	public function transaction()
 	{
-			return view('layouts.report.transaction');
+		$options = [
+			'clients' => Clients::all(),
+			'units' => Units::all() 
+		];
+		return view('layouts.report.transaction', $options);
 	}
 
-	public function datatransaction()
+	public function datatransaction(Request $request)
 	{
 			$paymentHistory = DB::table('payment_histories')
 			->select([
+				'unit.unit_name as unit_name',
+				'clients.name as client_name',
 				'orders.order_number as order_number',
 				'payment_status.name as payment_status_name',
 				'u1.name as user_name',
@@ -220,15 +237,30 @@ class ReportController extends Controller
 				'payment_histories.valid_transaction as valid_transaction',
 			])
 			->join('orders', 'payment_histories.order_id', '=', 'orders.id')
+			->join('unit', 'unit.id', '=', 'orders.unit_id')
+			->join('clients', 'clients.id', '=', 'orders.client_id')
 			->leftJoin('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
 			->leftJoin('users as u1', 'payment_histories.user_id', '=', 'u1.id')
-			->leftJoin('users as u2', 'payment_histories.verified_by', '=', 'u2.id')->get();
-			// dd($paymentHistory);
+			->leftJoin('users as u2', 'payment_histories.verified_by', '=', 'u2.id');
 
-			
-			// $paymentHistory->get();
+			$paymentHistory->get();
 
 			return DataTables::of($paymentHistory)
+			->filter(function($query) use ($request){
+				if($request->get('client')){
+					$query->where('orders.client_id', '=', $request->get('client'));
+				}
+				if($request->get('unit')){
+					$query->where('unit.id', '=', $request->get('unit'));
+				}
+				if($request->get('date_range')){
+					$date = array_map('trim',explode("-", $request->get("date_range")));
+					$startDate =  Carbon::parse($date[0])->startOfDay();
+					$endDate = Carbon::parse($date[1])->endOfDay();
+					$query->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
+				}
+
+			})
 			->editColumn('nominal', '{{number_format($nominal, "0", ",", ".")}}')
 			->editColumn('payment_method', function($ph)
 			{

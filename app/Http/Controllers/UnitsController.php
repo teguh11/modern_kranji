@@ -60,6 +60,7 @@ class UnitsController extends Controller
         ->leftJoin('orders','unit.id', '=', 'orders.unit_id')
         ->leftJoin('clients','orders.client_id', '=', 'clients.id')
         ->leftJoin('available_status','unit.available_status_id', '=', 'available_status.id');
+
         if(auth()->user()->hasRole('sales')){
             if($request->get('client') == null &&
             $request->get('available_status') == null &&
@@ -68,9 +69,12 @@ class UnitsController extends Controller
             $request->get('tower') == null &&
             $request->get('view') == null){
                 $units->whereNull('unit.available_status_id');
+                $units->orWhere('orders.user_id', '=', auth()->user()->id);
+            }else{
+                if($request->get('available_status') == 99){
+                    $units->whereNull('unit.available_status_id');
+                }
             }
-
-            $units->orWhere('orders.user_id', '=', auth()->user()->id);
         }
         $units->get();
 

@@ -179,7 +179,10 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
 
         // Datatables Provider
-        Yajra\Datatables\DatatablesServiceProvider::class
+        Yajra\Datatables\DatatablesServiceProvider::class,
+        
+        // Excel
+        Maatwebsite\Excel\ExcelServiceProvider::class,
     ],
 
     /*
@@ -231,7 +234,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Datatables' => Yajra\Datatables\Facades\Datatables::class,
-
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ],
 
 ];

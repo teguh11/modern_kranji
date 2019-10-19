@@ -1,16 +1,31 @@
 @extends('themes.adminlte.app')
 @section('stylesheets')
-  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.0/css/buttons.dataTables.min.css">
   <link rel="stylesheet" href="{{asset('adminlte/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css')}}">
+  <link rel="stylesheet" href="{{asset('adminlte/bower_components/bootstrap-daterangepicker/daterangepicker.css')}}">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.0/css/buttons.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/3.3.0/css/fixedColumns.bootstrap.min.css">
 @endsection
 @push('scripts')
   <script src="{{asset('adminlte/bower_components/datatables.net/js/jquery.dataTables.min.js')}}"></script>
   <script src="{{asset('adminlte/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js')}}"></script>
+  <script src="{{asset('adminlte/bower_components/bootstrap-daterangepicker/daterangepicker.js')}}"></script>
   <script src="https://cdn.datatables.net/buttons/1.6.0/js/dataTables.buttons.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/1.6.0/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/fixedcolumns/3.3.0/js/dataTables.fixedColumns.min.js"></script>
   <script>
     $(function () {
+      $('#date_range').daterangepicker({
+        autoUpdateInput: false,
+        locale: {
+            cancelLabel: 'Clear'
+        }
+      })
+
+      $('input[name="date_range"]').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+      });
+
       var oTable = $('#list-report-unit').DataTable({
         buttons: [
             'excel'
@@ -19,10 +34,13 @@
         scrollX : true,
         processing: true,
         serverSide: true,
+        fixedColumns: true,
         ajax: {
           url : '{{route('report.transaction.data')}}',
           data : function(d){
-            // d.client = $("#client").val()
+            d.client = $("#client").val()
+            d.unit = $("#unit").val()
+            d.date_range = $("#date_range").val()
             // d.available_status = $("#available_status").val()
             // d.unit_type = $("#unit_type").val()
             // d.floor = $("#floor").val()
@@ -31,6 +49,8 @@
           }
         },
         columns: [
+          {data : 'unit_name', name : 'unit_name'}, 
+          {data : 'client_name', name : 'client_name'}, 
           {data : 'order_number', name : 'order_number'}, 
           {data : 'payment_status_name', name : 'payment_status_name'}, 
           {data : 'user_name', name : 'user_name'}, 
@@ -42,7 +62,42 @@
           {data : 'refundable_status', name : 'refundable_status'}, 
           {data : 'valid_transaction', name : 'valid_transaction'}, 
           {data : 'user_verified_by', name : 'user_verified_by'},   
-        ]
+        ],
+        footerCallback: function ( row, data, start, end, display ) {
+          var api = this.api(), data;
+
+          function intVal(i) {
+            if(typeof i === 'string'){
+              i = i.replace(/\./g,"");
+              return typeof i === 'string' ?
+                  i.replace(/[\$,]/g, '')*1 :
+                  typeof i === 'number' ?
+                      i : 0;
+            }else if(typeof i === 'number'){
+              return i;
+            }else{
+              return 0
+            }
+          }
+
+          // Total over all pages
+          total = api
+            .column( 4)
+            .data()
+            .reduce( function (a, b) {
+              var cur_index = api.column(4).data().indexOf(b)
+              if(api.column(9).data()[cur_index] == "Yes"){
+                return intVal(a) + intVal(b);
+              }else{
+                return intVal(a)
+              }
+            }, 0 );
+
+          // Update footer
+          $( api.column( 4 ).footer() ).html(
+            new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format(total)
+          );
+        },
       });
       $("#advance-search").submit(function(e) {
         console.log("test")
@@ -74,7 +129,7 @@
         <div class="box-body">
           <form method="get" id="advance-search" action="#">
             <div class="row">
-              {{-- <div class="col-md-4">
+              <div class="col-md-4">
                 <div class="form-group">
                   <label>Pemilik</label>
                   <select class="form-control" name="client" id="client">
@@ -84,7 +139,29 @@
                     @endforeach
                   </select>
                 </div>
-              </div> --}}
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Unit</label>
+                  <select class="form-control" name="unit" id="unit">
+                    <option value=""></option>
+                    @foreach ($units as $unit)
+                      <option value="{{$unit->id}}" {{old('unit') == $unit->id ? "selected" : ""}}>{{$unit->unit_name}}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Tanggal Pembayaran</label>
+                  <div class="input-group">
+                    <div class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                    <input type="text" class="form-control pull-right" id="date_range" name="date_range" value="">
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="row">
@@ -107,6 +184,8 @@
 					<table id="list-report-unit" class="table table-bordered table-striped" style="width:100%">
             <thead>
             <tr>
+              <th>Unit Name</th>
+              <th>Pemilik</th>
               <th>order</th>
               <th>payment_status</th>
               <th>user</th>
@@ -120,6 +199,18 @@
               <th>verified_by</th>
             </tr>
             </thead>
+            <tfoot>
+              <tr>
+                <th colspan="4">Total</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tr>
+            </tfoot>
           </table>
 				</div>
 			</div>

@@ -1,16 +1,31 @@
 @extends('themes.adminlte.app')
 @section('stylesheets')
-  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.0/css/buttons.dataTables.min.css">
   <link rel="stylesheet" href="{{asset('adminlte/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css')}}">
+  <link rel="stylesheet" href="{{asset('adminlte/bower_components/bootstrap-daterangepicker/daterangepicker.css')}}">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.0/css/buttons.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/3.3.0/css/fixedColumns.bootstrap.min.css">
 @endsection
 @push('scripts')
   <script src="{{asset('adminlte/bower_components/datatables.net/js/jquery.dataTables.min.js')}}"></script>
   <script src="{{asset('adminlte/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js')}}"></script>
+  <script src="{{asset('adminlte/bower_components/bootstrap-daterangepicker/daterangepicker.js')}}"></script>
   <script src="https://cdn.datatables.net/buttons/1.6.0/js/dataTables.buttons.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/1.6.0/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/fixedcolumns/3.3.0/js/dataTables.fixedColumns.min.js"></script>
   <script>
     $(function () {
+      $('#date_range').daterangepicker({
+        autoUpdateInput: false,
+        locale: {
+            cancelLabel: 'Clear'
+        }
+      })
+
+      $('input[name="date_range"]').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+      });
+
       var oTable = $('#list-pembeli').DataTable({
         buttons: [
             'excel'
@@ -19,25 +34,26 @@
         scrollX : true,
         processing: true,
         serverSide: true,
+        fixedColumns: true,
         ajax: {
           url : '{{route('report.order.data')}}',
           data : function(d){
             d.payment_status = $("#payment_status").val()
+            d.date_range = $("#date_range").val()
           }
         },
         columns: [
-            {data:'order_number', name: 'order_number'},
-            {data:'pending_payment', name: 'pending_payment'},
-            {data:'client_name', name: 'client_name'},
-            {data:'user_name', name: 'user_name'},
-            {data: 'unit_name', name: 'unit_name'},
-            {data:'large', name: 'large'},
-            {data:'price', name: 'price'},
-            {data:'unit_type', name: 'unit_type'},
-            {data: 'floor', name: 'floor'},
-            {data: 'status', name: 'status'},
-            {data: 'action', name: 'action'},
-            
+          {data: 'unit_name', name: 'unit_name'},
+          {data:'order_number', name: 'order_number'},
+          {data:'pending_payment', name: 'pending_payment'},
+          {data:'client_name', name: 'client_name'},
+          {data:'user_name', name: 'user_name'},
+          {data:'large', name: 'large'},
+          {data:'price', name: 'price'},
+          {data:'unit_type', name: 'unit_type'},
+          {data: 'floor', name: 'floor'},
+          {data: 'status', name: 'status'},
+          {data: 'action', name: 'action'},
         ]
       });
       $("#advance-search").submit(function(e) {
@@ -80,6 +96,17 @@
                   </select>
                 </div>
               </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Tanggal</label>
+                  <div class="input-group">
+                    <div class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                    <input type="text" class="form-control pull-right" id="date_range" name="date_range" value="">
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="row">
@@ -100,11 +127,11 @@
           <table id="list-pembeli" class="table table-bordered table-striped" style="width:100%">
             <thead>
             <tr>
+              <th>Unit</th>
               <th>Order Number</th>
               <th>Pending Validation</th>
               <th>Nama Konsumen</th>
               <th>Nama user</th>
-              <th>Unit</th>
               <th>Luas</th>
               <th>Harga</th>
               <th>Tipe</th>

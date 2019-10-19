@@ -113,8 +113,6 @@ class OrdersController extends Controller
             $orders = [];
         }
     
-        // $orders = $this->viewData($orders, 'orders.user_id');
-        
         return DataTables::of($orders)->addColumn('action', function($order)
         {
             return '<a href="'.route('units.show',['unit' => $order->unit_id]).'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> History</a>';
@@ -218,7 +216,7 @@ class OrdersController extends Controller
         }else{
             $clients = DB::table('clients')->where('user_id', "=" , auth()->user()->id)->get();
         }
-
+        // dd($unit);
         if(auth()->user()->hasRole('kasir')){
             $reserved_payment_status = ($unit->available_status_id == null) ? PaymentStatus::BOOKING : array_values(array_diff(PaymentStatus::LUNAS, PaymentStatus::BOOKING)); 
         }else{
@@ -230,7 +228,7 @@ class OrdersController extends Controller
         ->join('orders', 'payment_histories.order_id', '=', 'orders.id')
         ->where('unit_id','=', $request->query('unit'))
         ->whereNotIn('payment_status_id', [4,5])->get();
-
+        // dd($x);
         $y = collect($reserved_payment_status);
         $diff = $y->diff($x->pluck('payment_status_id')->values());
         $payment_status_id = $diff->values()->all();
@@ -423,6 +421,7 @@ class OrdersController extends Controller
                 ->where('payment_histories.order_id', '=', $unit->order_id)
                 ->paginate(10);
         $options = [
+            'order_id' => $id,
             'type' => 'update',
             'unit' => $detailUnit,
             'clients' => $clients,
@@ -451,7 +450,7 @@ class OrdersController extends Controller
         $request->validate($rules);
         
 
-        DB::transaction(function() use ($request){
+        DB::transaction(function() use ($id, $request){
             $file = "";
             if($request->hasFile('transaction_file')){
                 $file = $request->file('transaction_file')->store(env("TRANSACTION_DIR").date("Y/m/d"));
@@ -466,9 +465,17 @@ class OrdersController extends Controller
                 'verified_by' => auth()->user()->id,
                 'valid_transaction' => $request->valid_transaction
             ]);
-
+            
             $ph = PaymentHistories::where('id', $request->query('payment_history'))->where('valid_transaction', 1)->first();
-
+            // $ph  = DB::table('payment_histories')->select([
+            //     "payment_status_id",
+            //     DB::raw('SUM(nominal) as nominal')
+            // ])
+            // ->where('order_id', $id)
+            // ->where('valid_transaction', 1)
+            // ->groupBy('payment_status_id')
+            // ->get();
+            
             // ubah status unit jika transaksi yang terjadi sudah valid
             if($ph != null){
                 if(in_array($ph->payment_status_id, AvailableStatus::RESERVED)){

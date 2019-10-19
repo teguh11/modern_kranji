@@ -153,6 +153,17 @@
             <div class="col-sm-4">{{isset($arr['DP']) ? "Rp ".number_format($arr['DP'], 0, ",", ".") : "Rp 0"}}</div>
           </div>
           <div class="row">
+            <div class="col-sm-3"><strong>Total DP Yang telah Belum dibayar</strong></div>
+            <div class="col-sm-4 text-danger">
+              @php
+                  $total_dp = $unit->order_nominal_dp != "" ? $unit->order_nominal_dp : 0;
+                  $dp_bayar = isset($arr['DP']) ? $arr['DP'] : 0;
+                  $kurang_bayar = $total_dp - $dp_bayar;
+                  echo "Rp ".number_format($kurang_bayar, 0, ",", ".");
+              @endphp
+            </div>
+          </div>
+          <div class="row">
             <div class="col-sm-3"><strong>Angsuran</strong></div>
             <div class="col-sm-4">{{$unit->order_cicilan != "" ? $unit->order_cicilan : "-"}}</div>
           </div>

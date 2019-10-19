@@ -52,15 +52,57 @@
           {data : 'unit_name', name : 'unit_name'}, 
           {data : 'client_name', name : 'client_name'}, 
           {data : 'available_status_name', name : 'available_status_name'}, 
+          {data : 'dana_masuk', name : 'dana_masuk'}, 
+          {data : 'unit_price', name : 'unit_price'},
           {data : 'unit_number', name : 'unit_number'}, 
           {data : 'unit_large', name : 'unit_large'}, 
-          {data : 'unit_price', name : 'unit_price'},
           {data : 'unit_type_name', name : 'unit_type_name'}, 
           {data : 'floor_name', name : 'floor_name'}, 
           {data : 'tower_name', name : 'tower_name'}, 
           {data : 'view_name', name : 'view_name'},
           {data : 'user_name', name : 'user_name'},   
-        ]
+        ],
+        footerCallback: function ( row, data, start, end, display ) {
+          var api = this.api(), data;
+
+          function intVal(i) {
+            if(typeof i === 'string'){
+              i = i.replace(/\./g,"");
+              return typeof i === 'string' ?
+                  i.replace(/[\$,]/g, '')*1 :
+                  typeof i === 'number' ?
+                      i : 0;
+            }else if(typeof i === 'number'){
+              return i;
+            }else{
+              return 0
+            }
+          }
+
+          // Total over all pages
+          total = api
+            .column(4)
+            .data()
+            .reduce( function (a, b) {
+              return intVal(a) + intVal(b);
+            }, 0 );
+
+          // Update footer
+          $( api.column( 4 ).footer()).html(
+            new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format(total)
+          );
+          total = api
+            .column(3)
+            .data()
+            .reduce( function (a, b) {
+              return intVal(a) + intVal(b);
+            }, 0 );
+
+          // Update footer
+          $( api.column( 3 ).footer()).html(
+            new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format(total)
+          );
+        },
       });
       $("#advance-search").submit(function(e) {
         console.log("test")
@@ -209,20 +251,35 @@
 				<div class="box-body">
 					<table id="list-report-unit" class="table table-bordered table-striped" style="width:100%">
             <thead>
-            <tr>
-              <th>unit_name</th>
-              <th>client_name</th>
-              <th>available_status_name</th>
-              <th>unit_number</th>
-              <th>unit_large</th>
-              <th>unit_price</th>
-              <th>unit_type_name</th>
-              <th>floor_name</th>
-              <th>tower_name</th>
-              <th>view_name</th>
-              <th>user_name</th>
-            </tr>
+              <tr>
+                <th>unit_name</th>
+                <th>client_name</th>
+                <th>available_status_name</th>
+                <th>dana_masuk</th>
+                <th>unit_price</th>
+                <th>unit_number</th>
+                <th>unit_large</th>
+                <th>unit_type_name</th>
+                <th>floor_name</th>
+                <th>tower_name</th>
+                <th>view_name</th>
+                <th>user_name</th>
+              </tr>
             </thead>
+            <tfoot>
+              <tr>
+                <td colspan="3">Total</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tfoot>
           </table>
 				</div>
 			</div>
