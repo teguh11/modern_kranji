@@ -26,27 +26,27 @@
         $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
       });
 
+      var totalNominal;
+      
       var oTable = $('#list-report-unit').DataTable({
         buttons: [
             'excel'
         ],
-        dom: 'Bfrtip',
+        // dom: 'Bfrtip',
         scrollX : true,
         processing: true,
         serverSide: true,
         fixedColumns: true,
         ajax: {
           url : '{{route('report.transaction.data')}}',
+          dataSrc: function ( data ) {
+            totalNominal = data.totalNominal;
+           return data.data;
+          },
           data : function(d){
             d.client = $("#client").val()
             d.unit = $("#unit").val()
             d.date_range = $("#date_range").val()
-            d.payment_status = $("#payment_status").val()
-            // d.available_status = $("#available_status").val()
-            // d.unit_type = $("#unit_type").val()
-            // d.floor = $("#floor").val()
-            // d.tower = $("#tower").val()
-            // d.view = $("#view").val()
           }
         },
         columns: [
@@ -64,47 +64,15 @@
           {data : 'valid_transaction', name : 'valid_transaction'}, 
           {data : 'user_verified_by', name : 'user_verified_by'},   
         ],
-        footerCallback: function ( row, data, start, end, display ) {
-          var api = this.api(), data;
-
-          function intVal(i) {
-            if(typeof i === 'string'){
-              i = i.replace(/\./g,"");
-              return typeof i === 'string' ?
-                  i.replace(/[\$,]/g, '')*1 :
-                  typeof i === 'number' ?
-                      i : 0;
-            }else if(typeof i === 'number'){
-              return i;
-            }else{
-              return 0
-            }
-          }
-
-          // Total over all pages
-          total = api
-            .column(6)
-            .data()
-            .reduce( function (a, b) {
-              var cur_index = api.column(6).data().indexOf(b)
-              if(api.column(11).data()[cur_index] == "Yes"){
-                return intVal(a) + intVal(b);
-              }else{
-                return intVal(a)
-              }
-            }, 0 );
-
-          // Update footer
-          $( api.column( 4 ).footer() ).html(
-            new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format(total)
-          );
+        drawCallback: function( settings ) {
+          var api = this.api();
+          $(api.column(4).footer()).html(new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format(totalNominal));
         },
         rowCallback: function (row, data) {
-          console.log(data.valid_transaction);
           if ( data.valid_transaction == "No" ) {
               $(row).addClass('danger');
           }
-        }
+        },
       });
       $("#advance-search").submit(function(e) {
         console.log("test")
@@ -114,7 +82,6 @@
       $("#reset").click(function () {
         oTable.draw();
       })
-
     })
   </script>
 
