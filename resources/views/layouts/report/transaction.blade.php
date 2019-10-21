@@ -46,7 +46,8 @@
           data : function(d){
             d.client = $("#client").val()
             d.unit = $("#unit").val()
-            d.date_range = $("#date_range").val()
+            d.date_range = $("#date_range").val(),
+            d.payment_status = $("#payment_status").val(),
           }
         },
         columns: [

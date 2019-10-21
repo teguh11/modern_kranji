@@ -278,6 +278,11 @@ class ReportController extends Controller
 			$paymentHistoryTotalData->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
 			$paymentHistoryValidTransaction->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
 		}
+		if($request->get('payment_status')){
+			$paymentHistory->where('payment_histories.payment_status_id', '=', $request->get('payment_status'));
+			$paymentHistoryTotalData->where('payment_histories.payment_status_id', '=', $request->get('payment_status'));
+			$paymentHistoryValidTransaction->where('payment_histories.payment_status_id', '=', $request->get('payment_status'));
+		}
 
 		$paymentHistory->offset($request->get('start'));
 		$paymentHistory->limit($request->get('length'));
