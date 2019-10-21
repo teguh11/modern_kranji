@@ -26,6 +26,8 @@
         $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
       });
 
+      var datay, recordsTotal,recordsFiltered;
+      
       var oTable = $('#list-report-unit').DataTable({
         buttons: [
             'excel'
@@ -33,10 +35,17 @@
         dom: 'Bfrtip',
         scrollX : true,
         processing: true,
-        // serverSide: true,
+        serverSide: true,
         fixedColumns: true,
+        // serverData : ( sSource, aoData, fnCallback ){
+        //   console.log("serverData")
+        //   fnCallback()
+        // },
         ajax: {
           url : '{{route('report.transaction.data')}}',
+          dataSrc : function (data) {
+            return data.data
+          },
           data : function(d){
             d.client = $("#client").val()
             d.unit = $("#unit").val()
@@ -99,11 +108,10 @@
           );
         },
         rowCallback: function (row, data) {
-          console.log(data.valid_transaction);
           if ( data.valid_transaction == "No" ) {
               $(row).addClass('danger');
           }
-        }
+        },
       });
       $("#advance-search").submit(function(e) {
         console.log("test")
@@ -113,7 +121,6 @@
       $("#reset").click(function () {
         oTable.draw();
       })
-
     })
   </script>
 

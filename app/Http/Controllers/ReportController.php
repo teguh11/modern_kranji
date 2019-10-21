@@ -220,6 +220,56 @@ class ReportController extends Controller
 
 	public function datatransaction(Request $request)
 	{
+		$paymentHistory = DB::table('payment_histories')
+		->select([
+			'unit.unit_name as unit_name',
+			'clients.name as client_name',
+			'orders.order_number as order_number',
+			'payment_status.name as payment_status_name',
+			'u1.name as user_name',
+			'u2.name as user_verified_by',
+			'payment_histories.payment_number as payment_number',
+			'payment_histories.nominal as nominal',
+			'payment_histories.payment_method as payment_method',
+			'payment_histories.payment_date as payment_date',
+			'payment_histories.status as status',
+			'payment_histories.refundable_status as refundable_status',
+			'payment_histories.valid_transaction as valid_transaction',
+		])
+		->join('orders', 'payment_histories.order_id', '=', 'orders.id')
+		->join('unit', 'unit.id', '=', 'orders.unit_id')
+		->join('clients', 'clients.id', '=', 'orders.client_id')
+		->leftJoin('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
+		->leftJoin('users as u1', 'payment_histories.user_id', '=', 'u1.id')
+		->leftJoin('users as u2', 'payment_histories.verified_by', '=', 'u2.id');
+
+		if($request->get('client')){
+			$paymentHistory->where('orders.client_id', '=', $request->get('client'));
+		}
+		if($request->get('unit')){
+			$paymentHistory->where('unit.id', '=', $request->get('unit'));
+		}
+		if($request->get('date_range')){
+			$date = array_map('trim',explode("-", $request->get("date_range")));
+			$startDate =  Carbon::parse($date[0])->startOfDay();
+			$endDate = Carbon::parse($date[1])->endOfDay();
+			$paymentHistory->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
+		}
+
+		$paymentHistory->offset($request->get('start'));
+		$paymentHistory->limit($request->get('length'));
+		
+		$data = array(
+			"draw" => $request->get('draw'),
+			"recordsTotal" => 100,
+			"totalPriceSum" => 100000,
+			"data" => $paymentHistory->get()
+		);
+		return $data;
+	}
+
+	public function datatransactionx(Request $request)
+	{
 			$paymentHistory = DB::table('payment_histories')
 			->select([
 				'unit.unit_name as unit_name',
@@ -243,24 +293,23 @@ class ReportController extends Controller
 			->leftJoin('users as u1', 'payment_histories.user_id', '=', 'u1.id')
 			->leftJoin('users as u2', 'payment_histories.verified_by', '=', 'u2.id');
 
+			if($request->get('client')){
+				$paymentHistory->where('orders.client_id', '=', $request->get('client'));
+			}
+			if($request->get('unit')){
+				$paymentHistory->where('unit.id', '=', $request->get('unit'));
+			}
+			if($request->get('date_range')){
+				$date = array_map('trim',explode("-", $request->get("date_range")));
+				$startDate =  Carbon::parse($date[0])->startOfDay();
+				$endDate = Carbon::parse($date[1])->endOfDay();
+				$paymentHistory->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
+			}
+
 			$paymentHistory->get();
 
-			return DataTables::of($paymentHistory)
-			->filter(function($query) use ($request){
-				if($request->get('client')){
-					$query->where('orders.client_id', '=', $request->get('client'));
-				}
-				if($request->get('unit')){
-					$query->where('unit.id', '=', $request->get('unit'));
-				}
-				if($request->get('date_range')){
-					$date = array_map('trim',explode("-", $request->get("date_range")));
-					$startDate =  Carbon::parse($date[0])->startOfDay();
-					$endDate = Carbon::parse($date[1])->endOfDay();
-					$query->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
-				}
 
-			})
+			$datatables = DataTables::of($paymentHistory)
 			->editColumn('nominal', '{{number_format($nominal, "0", ",", ".")}}')
 			->editColumn('payment_method', function($ph)
 			{
@@ -279,5 +328,10 @@ class ReportController extends Controller
 				return PaymentHistories::VALID_TRANSACTION[$ph->valid_transaction];
 			})
 			->make(true);
+			// return [
+			// 	$datatables,
+			// 	'totalx' => "daa"
+			// ];
+			return $datatables;
 	}
 }
