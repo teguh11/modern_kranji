@@ -213,7 +213,8 @@ class ReportController extends Controller
 	{
 		$options = [
 			'clients' => Clients::all(),
-			'units' => Units::all() 
+			'units' => Units::all(),
+			'payment_statuss' => PaymentStatus::where("status", "=", "1")->get()
 		];
 		return view('layouts.report.transaction', $options);
 	}
@@ -252,6 +253,9 @@ class ReportController extends Controller
 				}
 				if($request->get('unit')){
 					$query->where('unit.id', '=', $request->get('unit'));
+				}
+				if($request->get('payment_status')){
+					$query->where('payment_histories.payment_status_id', '=', $request->get('payment_status'));
 				}
 				if($request->get('date_range')){
 					$date = array_map('trim',explode("-", $request->get("date_range")));

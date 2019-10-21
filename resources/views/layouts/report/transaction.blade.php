@@ -33,7 +33,7 @@
         dom: 'Bfrtip',
         scrollX : true,
         processing: true,
-        // serverSide: true,
+        serverSide: true,
         fixedColumns: true,
         ajax: {
           url : '{{route('report.transaction.data')}}',
@@ -41,6 +41,7 @@
             d.client = $("#client").val()
             d.unit = $("#unit").val()
             d.date_range = $("#date_range").val()
+            d.payment_status = $("#payment_status").val()
             // d.available_status = $("#available_status").val()
             // d.unit_type = $("#unit_type").val()
             // d.floor = $("#floor").val()
@@ -166,6 +167,20 @@
                     </div>
                     <input type="text" class="form-control pull-right" id="date_range" name="date_range" value="">
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Payment Status</label>
+                  <select class="form-control" name="payment_status" id="payment_status">
+                    <option value=""></option>
+                    @foreach ($payment_statuss as $payment_status)
+                      <option value="{{$payment_status->id}}" {{old('payment_status') == $unit->id ? "selected" : ""}}>{{$payment_status->name}}</option>
+                    @endforeach
+                  </select>
                 </div>
               </div>
             </div>
