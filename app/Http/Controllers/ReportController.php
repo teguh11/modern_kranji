@@ -247,7 +247,7 @@ class ReportController extends Controller
 
 
 		// total data
-		$totalValidTransaction = $paymentHistoryTotalData = DB::table('payment_histories')
+		$paymentHistoryValidTransaction = $paymentHistoryTotalData = DB::table('payment_histories')
 		->select([
 			DB::raw('sum(payment_histories.nominal) as total_nominal'),
 			DB::raw('count(payment_histories.id) as total_data')
@@ -263,12 +263,12 @@ class ReportController extends Controller
 		if($request->get('client')){
 			$paymentHistory->where('orders.client_id', '=', $request->get('client'));
 			$paymentHistoryTotalData->where('orders.client_id', '=', $request->get('client'));
-			$totalValidTransaction->where('orders.client_id', '=', $request->get('client'));
+			$paymentHistoryValidTransaction->where('orders.client_id', '=', $request->get('client'));
 		}
 		if($request->get('unit')){
 			$paymentHistory->where('unit.id', '=', $request->get('unit'));
 			$paymentHistoryTotalData->where('unit.id', '=', $request->get('unit'));
-			$totalValidTransaction->where('unit.id', '=', $request->get('unit'));
+			$paymentHistoryValidTransaction->where('unit.id', '=', $request->get('unit'));
 		}
 		if($request->get('date_range')){
 			$date = array_map('trim',explode("-", $request->get("date_range")));
@@ -276,7 +276,7 @@ class ReportController extends Controller
 			$endDate = Carbon::parse($date[1])->endOfDay();
 			$paymentHistory->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
 			$paymentHistoryTotalData->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
-			$totalValidTransaction->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
+			$paymentHistoryValidTransaction->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
 		}
 
 		$paymentHistory->offset($request->get('start'));
@@ -294,15 +294,14 @@ class ReportController extends Controller
 		
 		$paymentHistoryTotalData = $paymentHistoryTotalData->get();
 
-		$totalValidTransaction->where('payment_histories.valid_transaction', '=', '1');
-		$totalValidTransaction = $totalValidTransaction->get();
-		
+		$paymentHistoryValidTransaction->where('payment_histories.valid_transaction', '=', '1');
+		$paymentHistoryValidTransaction = $paymentHistoryValidTransaction->get();
 
 		$data = array(
 			"draw" => $request->get('draw'),
 			"recordsTotal" => $paymentHistoryTotalData[0]->total_data,
 			"recordsFiltered" => $paymentHistoryTotalData[0]->total_data,
-			"totalNominal" => $totalValidTransaction[0]->total_nominal,
+			"totalNominal" => number_format($paymentHistoryValidTransaction[0]->total_nominal),
 			"data" => $paymentHistory
 		);
 		return $data;

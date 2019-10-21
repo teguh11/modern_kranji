@@ -66,7 +66,7 @@
         ],
         drawCallback: function( settings ) {
           var api = this.api();
-          $(api.column(4).footer()).html(new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format(totalNominal));
+          $(api.column(4).footer()).html(totalNominal);
         },
         rowCallback: function (row, data) {
           if ( data.valid_transaction == "No" ) {
