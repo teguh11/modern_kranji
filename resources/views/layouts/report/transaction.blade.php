@@ -32,7 +32,7 @@
         buttons: [
             'excel'
         ],
-        // dom: 'Bfrtip',
+        dom: 'Bfrtip',
         scrollX : true,
         processing: true,
         serverSide: true,
