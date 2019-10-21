@@ -301,7 +301,7 @@ class ReportController extends Controller
 			"draw" => $request->get('draw'),
 			"recordsTotal" => $paymentHistoryTotalData[0]->total_data,
 			"recordsFiltered" => $paymentHistoryTotalData[0]->total_data,
-			"totalNominal" => number_format($paymentHistoryValidTransaction[0]->total_nominal),
+			"totalNominal" => number_format($paymentHistoryValidTransaction[0]->total_nominal, 0, ",", "."),
 			"data" => $paymentHistory
 		);
 		return $data;
