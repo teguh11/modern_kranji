@@ -26,6 +26,7 @@
         $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
       });
 
+      var totalHargaUnit, totalDanaMasuk;
       var oTable = $('#list-report-unit').DataTable({
         buttons: [
             'excel'
@@ -37,6 +38,11 @@
         fixedColumns: true,
         ajax: {
           url : '{{route('report.unit.data')}}',
+          dataSrc : function(data){
+            totalDanaMasuk = data.totalDanaMasuk
+            totalHargaUnit = data.totalHargaUnit
+            return data.data;
+          },
           data : function(d){
             d.client = $("#client").val()
             d.available_status = $("#available_status").val()
@@ -62,46 +68,53 @@
           {data : 'view_name', name : 'view_name'},
           {data : 'user_name', name : 'user_name'},   
         ],
-        footerCallback: function ( row, data, start, end, display ) {
-          var api = this.api(), data;
+        // footerCallback: function ( row, data, start, end, display ) {
+        //   var api = this.api(), data;
 
-          function intVal(i) {
-            if(typeof i === 'string'){
-              i = i.replace(/\./g,"");
-              return typeof i === 'string' ?
-                  i.replace(/[\$,]/g, '')*1 :
-                  typeof i === 'number' ?
-                      i : 0;
-            }else if(typeof i === 'number'){
-              return i;
-            }else{
-              return 0
-            }
-          }
+        //   function intVal(i) {
+        //     if(typeof i === 'string'){
+        //       i = i.replace(/\./g,"");
+        //       return typeof i === 'string' ?
+        //           i.replace(/[\$,]/g, '')*1 :
+        //           typeof i === 'number' ?
+        //               i : 0;
+        //     }else if(typeof i === 'number'){
+        //       return i;
+        //     }else{
+        //       return 0
+        //     }
+        //   }
 
-          // Total over all pages
-          total = api
-            .column(4)
-            .data()
-            .reduce( function (a, b) {
-              return intVal(a) + intVal(b);
-            }, 0 );
+        //   // Total over all pages
+        //   total = api
+        //     .column(4)
+        //     .data()
+        //     .reduce( function (a, b) {
+        //       return intVal(a) + intVal(b);
+        //     }, 0 );
 
-          // Update footer
-          $( api.column( 4 ).footer()).html(
-            new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format(total)
-          );
-          total = api
-            .column(3)
-            .data()
-            .reduce( function (a, b) {
-              return intVal(a) + intVal(b);
-            }, 0 );
+        //   // Update footer
+        //   $( api.column( 4 ).footer()).html(
+        //     total
+        //     // new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format(total)
+        //   );
+        //   total = api
+        //     .column(3)
+        //     .data()
+        //     .reduce( function (a, b) {
+        //       return intVal(a) + intVal(b);
+        //     }, 0 );
 
-          // Update footer
-          $( api.column( 3 ).footer()).html(
-            new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format(total)
-          );
+        //   // Update footer
+        //   $( api.column( 3 ).footer()).html(
+        //     total
+        //     // new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format()
+        //   );
+        // },
+        drawCallback: function( settings ) {
+          var api = this.api();
+          $( api.column( 3 ).footer()).html(totalDanaMasuk);
+          $( api.column( 4 ).footer()).html(totalHargaUnit);
         },
       });
       $("#advance-search").submit(function(e) {

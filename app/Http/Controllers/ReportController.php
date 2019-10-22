@@ -74,52 +74,82 @@ class ReportController extends Controller
 		->leftJoin('clients','orders.client_id', '=', 'clients.id')
 		->leftJoin('available_status','unit.available_status_id', '=', 'available_status.id');
 		$units->get();
+
+		$totalDana = DB::table('unit')
+		->select([
+			'unit.price as totalHargaUnit',
+			DB::raw("(SELECT sum(nominal) as total from payment_histories where payment_histories.order_id = orders.id and valid_transaction = 1) as totalDanaMasuk")
+		])
+		->join('views','unit.view_id', '=', 'views.id')
+		->join('unit_types','unit.unit_type_id', '=', 'unit_types.id')
+		->join('floors','unit.floor_id', '=', 'floors.id')
+		->join('towers','unit.tower_id', '=', 'towers.id')
+		->leftJoin('orders','unit.id', '=', 'orders.unit_id')
+		->leftJoin('users','orders.user_id', '=', 'users.id')
+		->leftJoin('clients','orders.client_id', '=', 'clients.id')
+		->leftJoin('available_status','unit.available_status_id', '=', 'available_status.id');
 		
+		$totalDana = $this->unitSearch($totalDana, $request);
+		$totalDana = $totalDana->get();
 
 		$datatables = DataTables::of($units)
 		->filter(function ($query) use ($request)
 		{
-				if($request->get('unit_type') != null){
-						$query->where('unit_type_id', '=', $request->get('unit_type'));
-				}
-				if($request->get('floor') != null){
-						$query->where('floor_id', '=', $request->get('floor'));
-				}
-				if($request->get('tower') != null){
-						$query->where('tower_id', '=', $request->get('tower'));
-				}
-				if($request->get('view') != null){
-						$query->where('view_id', '=', $request->get('view'));
-				}
-				if($request->get('client') != null){
-						$query->where('client_id', '=', $request->get('client'));
-				}
-				if($request->get('available_status') != null){
-						if($request->get('available_status') == 99){
-								$query->whereNull('unit.available_status_id');
-						}else{
-								$query->where('unit.available_status_id', '=', $request->get('available_status'));
-						}
-				}
-				if($request->get('payment_status') != null){
-					$orderId = $this->getOrderByStatus($request->get('payment_status'));
-					$query->whereIn('orders.id', $orderId);
-				}
-
-				if($request->get('date_range') != null){
-					$date = array_map('trim',explode("-", $request->get("date_range")));
-					$startDate =  Carbon::parse($date[0])->startOfDay();
-					$endDate = Carbon::parse($date[1])->endOfDay();
-					$query->whereBetween('orders.created_at', [$startDate, $endDate]);
-				}
+			$query = $this->unitSearch($query, $request);		
 		});
 		$datatables->editColumn('available_status_name', function($unit){
 				return $unit->available_status_name == "" ? "Tersedia" : $unit->available_status_name; 
 		})
 		->editColumn('unit_price', '{{number_format($unit_price, "0", ", ", ".")}}')
 		->editColumn('dana_masuk', '{{number_format($dana_masuk, "0", ", ", ".")}}');
+		$data = $datatables->make(true)->getData();
 
-		return $datatables->make(true);
+		$return = array(
+			"draw" => $data->draw,
+			"recordsTotal" => $data->recordsTotal,
+			"recordsFiltered" => $data->recordsFiltered,
+			"totalDanaMasuk" => number_format($totalDana->sum('totalDanaMasuk'), 0, ",", "."),
+			"totalHargaUnit" => number_format($totalDana->sum('totalHargaUnit'), 0, ",", "."),
+			"data" => $data->data
+		);
+		return $return;
+	}
+
+	protected function unitSearch($query, $request){
+		if($request->get('unit_type') != null){
+			$query->where('unit_type_id', '=', $request->get('unit_type'));
+		}
+		if($request->get('floor') != null){
+				$query->where('floor_id', '=', $request->get('floor'));
+		}
+		if($request->get('tower') != null){
+				$query->where('tower_id', '=', $request->get('tower'));
+		}
+		if($request->get('view') != null){
+				$query->where('view_id', '=', $request->get('view'));
+		}
+		if($request->get('client') != null){
+				$query->where('client_id', '=', $request->get('client'));
+		}
+		if($request->get('available_status') != null){
+				if($request->get('available_status') == 99){
+						$query->whereNull('unit.available_status_id');
+				}else{
+						$query->where('unit.available_status_id', '=', $request->get('available_status'));
+				}
+		}
+		if($request->get('payment_status') != null){
+			$orderId = $this->getOrderByStatus($request->get('payment_status'));
+			$query->whereIn('orders.id', $orderId);
+		}
+
+		if($request->get('date_range') != null){
+			$date = array_map('trim',explode("-", $request->get("date_range")));
+			$startDate =  Carbon::parse($date[0])->startOfDay();
+			$endDate = Carbon::parse($date[1])->endOfDay();
+			$query->whereBetween('orders.created_at', [$startDate, $endDate]);
+		}
+		return $query;
 	}
 
 	public function order()
