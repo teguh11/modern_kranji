@@ -280,15 +280,14 @@ class ReportController extends Controller
 		$totalDana = DB::table('payment_histories')
 		->select([
 			DB::raw('sum(payment_histories.nominal) as total_nominal'),
-			DB::raw('count(payment_histories.id) as total_data')
 		])
 		->join('orders', 'payment_histories.order_id', '=', 'orders.id')
 		->join('unit', 'unit.id', '=', 'orders.unit_id')
 		->join('clients', 'clients.id', '=', 'orders.client_id')
 		->leftJoin('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
 		->leftJoin('users as u1', 'payment_histories.user_id', '=', 'u1.id')
-		->leftJoin('users as u2', 'payment_histories.verified_by', '=', 'u2.id');
-		
+		->leftJoin('users as u2', 'payment_histories.verified_by', '=', 'u2.id')
+		->where('payment_histories.valid_transaction', '=', 1);
 		$totalDana = $this->transactionSearch($totalDana, $request);
 		$x = $totalDana->get();
 
