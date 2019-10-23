@@ -96,8 +96,8 @@ class ReportController extends Controller
 		->filter(function ($query) use ($request)
 		{
 			$query = $this->unitSearch($query, $request);		
-		});
-		$datatables->editColumn('available_status_name', function($unit){
+		})
+		->editColumn('available_status_name', function($unit){
 				return $unit->available_status_name == "" ? "Tersedia" : $unit->available_status_name; 
 		})
 		->editColumn('unit_price', '{{number_format($unit_price, "0", ", ", ".")}}')
@@ -277,7 +277,7 @@ class ReportController extends Controller
 
 
 		// total data
-		$paymentHistoryValidTransaction = $paymentHistoryTotalData = DB::table('payment_histories')
+		$totalDana = DB::table('payment_histories')
 		->select([
 			DB::raw('sum(payment_histories.nominal) as total_nominal'),
 			DB::raw('count(payment_histories.id) as total_data')
@@ -289,57 +289,64 @@ class ReportController extends Controller
 		->leftJoin('users as u1', 'payment_histories.user_id', '=', 'u1.id')
 		->leftJoin('users as u2', 'payment_histories.verified_by', '=', 'u2.id');
 		
+		$totalDana = $this->transactionSearch($totalDana, $request);
+		$x = $totalDana->get();
 
+
+		$datatables = DataTables::of($paymentHistory)
+		->filter(function ($query) use ($request)
+		{
+			$query = $this->transactionSearch($query, $request);		
+		})
+		->editColumn('nominal', '{{number_format($nominal, "0", ",", ".")}}')
+		->editColumn('payment_method', function($ph)
+		{
+			return PaymentHistories::PAYMENT_METHOD[$ph->payment_method];
+		})
+		->editColumn('status', function($ph)
+		{
+			return PaymentHistories::STATUS[$ph->status];
+		})
+		->editColumn('refundable_status', function($ph)
+		{
+			return PaymentHistories::REFUNDABLE_STATUS[$ph->refundable_status];
+		})
+		->editColumn('valid_transaction', function($ph)
+		{
+			return PaymentHistories::VALID_TRANSACTION[$ph->valid_transaction];
+		})
+		->make(true);
+
+		$transactionData = $datatables->getData();
+
+		$data = array(
+			"draw" => $transactionData->draw,
+			"recordsTotal" => $transactionData->recordsTotal,
+			"recordsFiltered" => $transactionData->recordsFiltered,
+			"totalNominal" => number_format($x->sum('total_nominal'), 0, ",", "."),
+			"data" => $transactionData->data
+		);
+		return $data;
+	}
+
+	protected function transactionSearch($query, $request){
 		if($request->get('client')){
-			$paymentHistory->where('orders.client_id', '=', $request->get('client'));
-			$paymentHistoryTotalData->where('orders.client_id', '=', $request->get('client'));
-			$paymentHistoryValidTransaction->where('orders.client_id', '=', $request->get('client'));
+			$query->where('orders.client_id', '=', $request->get('client'));
 		}
 		if($request->get('unit')){
-			$paymentHistory->where('unit.id', '=', $request->get('unit'));
-			$paymentHistoryTotalData->where('unit.id', '=', $request->get('unit'));
-			$paymentHistoryValidTransaction->where('unit.id', '=', $request->get('unit'));
+			$query->where('unit.id', '=', $request->get('unit'));
 		}
 		if($request->get('date_range')){
 			$date = array_map('trim',explode("-", $request->get("date_range")));
 			$startDate =  Carbon::parse($date[0])->startOfDay();
 			$endDate = Carbon::parse($date[1])->endOfDay();
-			$paymentHistory->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
-			$paymentHistoryTotalData->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
-			$paymentHistoryValidTransaction->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
+			$query->whereBetween('payment_histories.created_at', [$startDate, $endDate]);
 		}
 		if($request->get('payment_status')){
-			$paymentHistory->where('payment_histories.payment_status_id', '=', $request->get('payment_status'));
-			$paymentHistoryTotalData->where('payment_histories.payment_status_id', '=', $request->get('payment_status'));
-			$paymentHistoryValidTransaction->where('payment_histories.payment_status_id', '=', $request->get('payment_status'));
+			$query->where('payment_histories.payment_status_id', '=', $request->get('payment_status'));
 		}
 
-		$paymentHistory->offset($request->get('start'));
-		$paymentHistory->limit($request->get('length'));
-		
-		$paymentHistory = $paymentHistory->get();
-		$paymentHistory->transform(function($item, $key){
-			$item->nominal = number_format($item->nominal, 0, ",", ".");
-			$item->payment_method = PaymentHistories::PAYMENT_METHOD[$item->payment_method];
-			$item->status = PaymentHistories::STATUS[$item->status];
-			$item->refundable_status = PaymentHistories::REFUNDABLE_STATUS[$item->refundable_status];
-			$item->valid_transaction = PaymentHistories::VALID_TRANSACTION[$item->valid_transaction];
-			return $item;
-		});
-		
-		$paymentHistoryTotalData = $paymentHistoryTotalData->get();
-
-		$paymentHistoryValidTransaction->where('payment_histories.valid_transaction', '=', '1');
-		$paymentHistoryValidTransaction = $paymentHistoryValidTransaction->get();
-
-		$data = array(
-			"draw" => $request->get('draw'),
-			"recordsTotal" => $paymentHistoryTotalData[0]->total_data,
-			"recordsFiltered" => $paymentHistoryTotalData[0]->total_data,
-			"totalNominal" => number_format($paymentHistoryValidTransaction[0]->total_nominal, 0, ",", "."),
-			"data" => $paymentHistory
-		);
-		return $data;
+		return $query;
 	}
 
 }
