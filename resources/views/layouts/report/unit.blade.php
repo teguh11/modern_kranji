@@ -46,6 +46,7 @@
           data : function(d){
             d.client = $("#client").val()
             d.available_status = $("#available_status").val()
+            d.unit = $("#unit").val()
             d.unit_type = $("#unit_type").val()
             d.floor = $("#floor").val()
             d.tower = $("#tower").val()
@@ -68,49 +69,6 @@
           {data : 'view_name', name : 'view_name'},
           {data : 'user_name', name : 'user_name'},   
         ],
-        // footerCallback: function ( row, data, start, end, display ) {
-        //   var api = this.api(), data;
-
-        //   function intVal(i) {
-        //     if(typeof i === 'string'){
-        //       i = i.replace(/\./g,"");
-        //       return typeof i === 'string' ?
-        //           i.replace(/[\$,]/g, '')*1 :
-        //           typeof i === 'number' ?
-        //               i : 0;
-        //     }else if(typeof i === 'number'){
-        //       return i;
-        //     }else{
-        //       return 0
-        //     }
-        //   }
-
-        //   // Total over all pages
-        //   total = api
-        //     .column(4)
-        //     .data()
-        //     .reduce( function (a, b) {
-        //       return intVal(a) + intVal(b);
-        //     }, 0 );
-
-        //   // Update footer
-        //   $( api.column( 4 ).footer()).html(
-        //     total
-        //     // new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format(total)
-        //   );
-        //   total = api
-        //     .column(3)
-        //     .data()
-        //     .reduce( function (a, b) {
-        //       return intVal(a) + intVal(b);
-        //     }, 0 );
-
-        //   // Update footer
-        //   $( api.column( 3 ).footer()).html(
-        //     total
-        //     // new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 3 }).format()
-        //   );
-        // },
         drawCallback: function( settings ) {
           var api = this.api();
           $( api.column( 3 ).footer()).html(totalDanaMasuk);
@@ -149,11 +107,11 @@
             <div class="row">
               <div class="col-md-4">
                 <div class="form-group">
-                  <label>Pemilik</label>
-                  <select class="form-control" name="client" id="client">
+                  <label>Unit</label>
+                  <select class="form-control" name="unit" id="unit">
                     <option value=""></option>
-                    @foreach ($clients as $client)
-                      <option value="{{$client->id}}" {{old('client') == $client->id ? "selected" : ""}}>{{$client->name}}</option>
+                    @foreach ($units as $unit)
+                      <option value="{{$unit->id}}" {{old('unit') == $unit->id ? "selected" : ""}}>{{$unit->unit_name}}</option>
                     @endforeach
                   </select>
                 </div>
@@ -184,6 +142,17 @@
             </div>
 
             <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label>Pemilik</label>
+                  <select class="form-control" name="client" id="client">
+                    <option value=""></option>
+                    @foreach ($clients as $client)
+                      <option value="{{$client->id}}" {{old('client') == $client->id ? "selected" : ""}}>{{$client->name}}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
               <div class="col-md-4">
                 <div class="form-group">
                   <label>Tanggal Order</label>

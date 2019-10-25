@@ -31,6 +31,7 @@ class ReportController extends Controller
 		$client =DB::table('clients')->get();
 		$options = [
 				'tipe_units' => UnitTypes::where('status', 1)->get(), 
+				'units' => Units::where('status', 1)->get(), 
 				'lantais'=> Floors::where('status', 1)->get(),
 				'towers' => Towers::where('status', 1)->get(),
 				'views' => Views::where('status', 1)->get(),
@@ -118,6 +119,9 @@ class ReportController extends Controller
 	protected function unitSearch($query, $request){
 		if($request->get('unit_type') != null){
 			$query->where('unit_type_id', '=', $request->get('unit_type'));
+		}
+		if($request->get('unit') != null){
+			$query->where('unit.id', '=', $request->get('unit'));
 		}
 		if($request->get('floor') != null){
 				$query->where('floor_id', '=', $request->get('floor'));

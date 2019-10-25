@@ -18,10 +18,38 @@
         numeral: true,
         numeralThousandsGroupStyle: 'thousand'
       });
-      new Cleave('#order_persen_dp', {
-        numeral: true,
-        numeralThousandsGroupStyle: 'thousand'
-      });
+      // new Cleave('#order_persen_dp', {
+      //   numeral: true,
+      //   numeralThousandsGroupStyle: 'thousand'
+      // });
+
+      function hideDPAngsuran() {
+        if($("#payment_status").val() == 2){
+          $(".dp-angsuran").hide()
+        }else{
+          $(".dp-angsuran").show()
+        }
+      }
+      hideDPAngsuran()
+
+      $("#payment_status").change(function(){
+        hideDPAngsuran()        
+      })
+
+      $("#editdp").on("change", function() {
+        if($(this).is(":checked")){
+          $("#order_persen_dp").prop("disabled", false);
+        }else{
+          $("#order_persen_dp").prop("disabled", true);
+        }
+      })
+      $("#editcicilan").on("change", function() {
+        if($(this).is(":checked")){
+          $("#order_lama_cicilan").prop("disabled", false);
+        }else{
+          $("#order_lama_cicilan").prop("disabled", true);
+        }
+      })
     })
   </script>
 @endpush
@@ -163,11 +191,11 @@
           </div>
           <div class="row">
             <div class="col-sm-3"><strong>Angsuran</strong></div>
-            <div class="col-sm-4">{{$unit->order_cicilan != "" ? $unit->order_cicilan : "-"}}</div>
+            <div class="col-sm-4">{{$unit->order_lama_cicilan." Kali"}}</div>
           </div>
           <div class="row">
             <div class="col-sm-3"><strong>Angsuran Per Bulan</strong></div>
-            <div class="col-sm-4">{{$unit->order_bunga != "" ? $unit->order_bunga : "Rp 0"}}</div>
+            <div class="col-sm-4">{{$unit->order_cicilan != "" ? "Rp ".number_format($unit->order_cicilan, 0, ",", ".") : "-"}}</div>
           </div>
         </div>
       </div>
@@ -234,7 +262,7 @@
                             // $disabled = (auth()->user()->hasRole('kasir') ? "disabled" : "");
                             $disabled = "";
                         @endphp
-                        <select class="form-control" name="payment_status" {{$disabled}}>
+                        <select class="form-control" name="payment_status" {{$disabled}} id="payment_status">
                           @foreach ($payment_statuss as $payment_status)
                             <option value="{{$payment_status->id}}"  {{old('payment_status') == $payment_status->id ? "selected":isset($unit->payment_status) && $unit->payment_status == $payment_status->id ? "selected" : ""}} >{{$payment_status->name}}</option>
                           @endforeach
@@ -272,15 +300,17 @@
                       </div>
                     </div>
                   </div>
-                  @if ($unit->order_persen_dp == "" && $type == "create")
+                  {{-- @if ($unit->order_persen_dp == "" && $type == "create") --}}
+                  <div class="dp-angsuran">
                     <div class="row">
                       <div class="col-md-6">
                         <div class="form-group @error('order_persen_dp') has-error @enderror">
                           <label for="order_persen_dp">DP</label>
                           <div class="input-group">
-                            <input type="text" class="form-control" id="order_persen_dp" placeholder="" name="order_persen_dp" value="{{old('order_persen_dp') != "" ? old('order_persen_dp'): isset($unit->order_persen_dp) ?$unit->order_persen_dp :""}}">
+                            <input type="text" class="form-control" id="order_persen_dp" placeholder="" name="order_persen_dp" value="{{old('order_persen_dp') != "" ? old('order_persen_dp'): isset($unit->order_persen_dp) ?$unit->order_persen_dp :""}}" disabled>
                             <div class="input-group-addon">%</div>
                           </div>
+                          <input type="checkbox" name="editdp" id="editdp"><label for="editdp">edit</label>
                           @error('order_persen_dp')
                             <span class="help-block" role="alert">
                               <strong>{{ $message }}</strong>
@@ -289,7 +319,25 @@
                         </div>
                       </div>
                     </div>    
-                  @endif
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group @error('order_lama_cicilan') has-error @enderror">
+                          <label for="order_lama_cicilan">CICILAN</label>
+                          <div class="input-group">
+                            <input type="text" class="form-control" id="order_lama_cicilan" placeholder="" name="order_lama_cicilan" value="{{old('order_lama_cicilan') != "" ? old('order_lama_cicilan'): isset($unit->order_lama_cicilan) ?$unit->order_lama_cicilan :""}}" disabled>
+                            <div class="input-group-addon">Kali</div>
+                          </div>
+                          <input type="checkbox" name="editcicilan" id="editcicilan"><label for="editcicilan">edit</label>
+                          @error('order_lama_cicilan')
+                            <span class="help-block" role="alert">
+                              <strong>{{ $message }}</strong>
+                            </span>
+                          @enderror
+                        </div>
+                      </div>
+                    </div>  
+                  </div>  
+                  {{-- @endif --}}
                   
                   @role('kasir')
                     <div class="row">
@@ -311,10 +359,10 @@
                           <div class="form-group @error('valid_transaction') has-error @enderror">
                             <label for="transaction_file">Verify Transaction ?</label>
                             <label class="radio-inline">
-                              <input type="radio" name="valid_transaction" class="form-control minimal" value="0" {{old("valid_transaction")==0?"checked":isset($unit->valid_transaction) == 0 ? "checked" : ""}}>No
+                              <input type="radio" name="valid_transaction" class="form-control minimal" value="0" {{old("valid_transaction") != null ?"checked":isset($unit->valid_transaction) == 0 ? "checked" : ""}}>&nbsp;Tidak
                             </label>
                             <label class="radio-inline">
-                              <input type="radio" name="valid_transaction" class="form-control minimal" value="1" {{old("valid_transaction")==1?"checked":isset($unit->valid_transaction) == 1 ? "checked" : ""}}>Yes
+                              <input type="radio" name="valid_transaction" class="form-control minimal" value="1" {{old("valid_transaction") != null ?"checked":isset($unit->valid_transaction) == 1 ? "checked" : ""}}>&nbsp;YA
                             </label>
                             @error('valid_transaction')
                               <span class="help-block" role="alert">
@@ -324,7 +372,27 @@
                           </div>
                         </div>
                       </div>
-                 {{-- @endif --}}
+
+                      {{-- @if ($unit->payment_status == 2) --}}
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="form-group @error('refundable_status') has-error @enderror">
+                              <label for="refundable_status">Status Pengembalian</label>
+                              <label class="radio-inline">
+                                <input type="radio" name="refundable_status" class="form-control minimal" value="0" {{old("refundable_status")==0?"checked":isset($unit->refundable_status) == 0 ? "checked" : ""}}>&nbsp;Belum
+                              </label>
+                              <label class="radio-inline">
+                                <input type="radio" name="refundable_status" class="form-control minimal" value="1" {{old("refundable_status")==1?"checked":isset($unit->refundable_status) == 1 ? "checked" : ""}}>&nbsp;Sudah
+                              </label>
+                              @error('refundable_status')
+                                <span class="help-block" role="alert">
+                                  <strong>{{ $message }}</strong>
+                                </span>
+                              @enderror
+                            </div>
+                          </div>
+                        </div>
+                      {{-- @endif --}}
                   @endrole
                   <input type="hidden" name="unit_id" value="{{app('request')->query('unit')}}">
                 </div>
@@ -407,7 +475,7 @@
           </div>
           <div class="row">
             <div class="col-xs-12">
-              {{$transactionHistory->links()}}
+              {{-- {{$transactionHistory->links()}} --}}
             </div>
           </div>
         </div>
