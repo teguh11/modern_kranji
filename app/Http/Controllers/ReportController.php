@@ -64,7 +64,7 @@ class ReportController extends Controller
 			'available_status.name as available_status_name', 
 			'users.id as user_id',
 			'users.name as user_name',
-			DB::raw("(SELECT sum(nominal) as total from payment_histories where payment_histories.order_id = orders.id and valid_transaction = 1) as dana_masuk")
+			DB::raw("(SELECT sum(nominal) as total from payment_histories where payment_histories.order_id = orders.id and valid_transaction = 1 and refundable_status = 0) as dana_masuk")
 		])
 		->join('views','unit.view_id', '=', 'views.id')
 		->join('unit_types','unit.unit_type_id', '=', 'unit_types.id')
@@ -79,7 +79,7 @@ class ReportController extends Controller
 		$totalDana = DB::table('unit')
 		->select([
 			'unit.price as totalHargaUnit',
-			DB::raw("(SELECT sum(nominal) as total from payment_histories where payment_histories.order_id = orders.id and valid_transaction = 1) as totalDanaMasuk")
+			DB::raw("(SELECT sum(nominal) as total from payment_histories where payment_histories.order_id = orders.id and valid_transaction = 1 and refundable_status = 0) as totalDanaMasuk")
 		])
 		->join('views','unit.view_id', '=', 'views.id')
 		->join('unit_types','unit.unit_type_id', '=', 'unit_types.id')
@@ -113,6 +113,7 @@ class ReportController extends Controller
 			"totalHargaUnit" => number_format($totalDana->sum('totalHargaUnit'), 0, ",", "."),
 			"data" => $data->data
 		);
+		// dd($return);
 		return $return;
 	}
 
@@ -143,8 +144,8 @@ class ReportController extends Controller
 				}
 		}
 		if($request->get('payment_status') != null){
-			$orderId = $this->getOrderByStatus($request->get('payment_status'));
-			$query->whereIn('orders.id', $orderId);
+			// $orderId = $this->getOrderByStatus($request->get('payment_status'));
+			// $query->whereIn('orders.id', $orderId);
 		}
 
 		if($request->get('date_range') != null){
@@ -291,7 +292,8 @@ class ReportController extends Controller
 		->leftJoin('payment_status', 'payment_histories.payment_status_id', '=', 'payment_status.id')
 		->leftJoin('users as u1', 'payment_histories.user_id', '=', 'u1.id')
 		->leftJoin('users as u2', 'payment_histories.verified_by', '=', 'u2.id')
-		->where('payment_histories.valid_transaction', '=', 1);
+		->where('payment_histories.valid_transaction', '=', 1)
+		->where('payment_histories.refundable_status', '=', 0);
 		$totalDana = $this->transactionSearch($totalDana, $request);
 		$x = $totalDana->get();
 

@@ -165,11 +165,11 @@
           </div>
           <div class="row">
             <div class="col-sm-3"><strong>Angsuran</strong></div>
-            <div class="col-sm-4">{{$unit->order_cicilan != "" ? $unit->order_cicilan : "-"}}</div>
+            <div class="col-sm-4">{{$unit->order_lama_cicilan." Kali"}}</div>
           </div>
           <div class="row">
             <div class="col-sm-3"><strong>Angsuran Per Bulan</strong></div>
-            <div class="col-sm-4">{{$unit->order_bunga != "" ? $unit->order_bunga : "Rp 0"}}</div>
+            <div class="col-sm-4">{{$unit->order_cicilan != "" ? "Rp ".number_format($unit->order_cicilan, 0, ",", ".") : "-"}}</div>
           </div>
         </div>
       </div>

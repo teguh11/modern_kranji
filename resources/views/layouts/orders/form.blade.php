@@ -165,6 +165,16 @@
                 }
               }
             }
+            $total_dp = $unit->order_nominal_dp != "" ? $unit->order_nominal_dp : 0;
+            $dp_bayar = isset($arr['DP']) ? $arr['DP'] : 0;
+            $kurang_bayar = $total_dp - $dp_bayar;
+
+            $payment_statuss = $payment_statuss->filter(function($value, $key) use ($kurang_bayar){
+              if($kurang_bayar == 0 && $value["id"]==4){
+                return false;
+              }
+              return $value;
+            });
           @endphp
           <div class="row">
             <div class="col-sm-3"><strong>DP</strong></div>
@@ -179,12 +189,9 @@
             <div class="col-sm-4">{{isset($arr['DP']) ? "Rp ".number_format($arr['DP'], 0, ",", ".") : "Rp 0"}}</div>
           </div>
           <div class="row">
-            <div class="col-sm-3"><strong>Total DP Yang telah Belum dibayar</strong></div>
+            <div class="col-sm-3"><strong>Total DP Yang Belum dibayar</strong></div>
             <div class="col-sm-4 text-danger">
               @php
-                  $total_dp = $unit->order_nominal_dp != "" ? $unit->order_nominal_dp : 0;
-                  $dp_bayar = isset($arr['DP']) ? $arr['DP'] : 0;
-                  $kurang_bayar = $total_dp - $dp_bayar;
                   echo "Rp ".number_format($kurang_bayar, 0, ",", ".");
               @endphp
             </div>
@@ -373,7 +380,7 @@
                         </div>
                       </div>
 
-                      {{-- @if ($unit->payment_status == 2) --}}
+                      @if ($type == "update" && $unit->payment_status == 2)
                         <div class="row">
                           <div class="col-md-12">
                             <div class="form-group @error('refundable_status') has-error @enderror">
@@ -392,14 +399,14 @@
                             </div>
                           </div>
                         </div>
-                      {{-- @endif --}}
+                      @endif
                   @endrole
                   <input type="hidden" name="unit_id" value="{{app('request')->query('unit')}}">
                 </div>
                 <div class="col-md-8">
                   <div class="form-group">
-                      <label for="notes">Catatan</label>
-                      <textarea name="notes" id="notes" cols="30" rows="10" class="form-control">{{old('order_notes') != "" ? old('order_notes'): isset($unit->order_notes) ?$unit->order_notes :""}}</textarea>
+                      <label for="payment_history_note">Catatan</label>
+                      <textarea name="payment_history_note" id="payment_history_note" cols="30" rows="10" class="form-control">{{old('payment_history_note') != "" ? old('payment_history_note'): isset($unit->payment_history_note) ?$unit->payment_history_note :""}}</textarea>
                   </div>
                 </div>
               </div>

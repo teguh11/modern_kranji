@@ -190,7 +190,6 @@ class OrdersController extends Controller
             'orders.order_number as order_number',
             'orders.created_at as order_date',
             'orders.id as order_id',
-            'orders.notes as order_notes',
             'orders.persen_dp as order_persen_dp',
             'orders.nominal_dp as order_nominal_dp',
             'orders.lama_cicilan as order_lama_cicilan',
@@ -256,7 +255,6 @@ class OrdersController extends Controller
         $y = collect($reserved_payment_status);
         $diff = $y->diff($x->pluck('payment_status_id')->values());
         $payment_status_id = $diff->values()->all();
-        
         $options = [
             'type' => 'create',
             'unit' => $detailUnit,
@@ -345,9 +343,10 @@ class OrdersController extends Controller
                 }elseif($request->payment_status == PaymentStatus::DP_ID){
                     $data = array_merge($data, ['dp_date' => date("Y-m-d H:i:s")]);
                 }
-                // dd($data);
-                DB::table('orders')->where('id', '=', $orderID)->update($data);
- 
+                
+                if(!empty($data)){
+                    DB::table('orders')->where('id', '=', $orderID)->update($data);
+                }
             }
             
             $paymentHistories = [
@@ -360,7 +359,7 @@ class OrdersController extends Controller
                 'payment_date' => date('Y-m-d H:i:s'),
                 'status' => ($request->payment_status_id == 2 ? 1 : 0),
                 'transaction_file' => $file,
-                'notes' => $request->notes
+                'notes' => $request->payment_history_note
             ];
             if(auth()->user()->hasRole('kasir')){
                 $paymentHistories = array_merge($paymentHistories, ['valid_transaction'=>$request->valid_transaction]);
@@ -421,12 +420,12 @@ class OrdersController extends Controller
             'payment_histories.id as payment_history_id',
             'payment_histories.valid_transaction as valid_transaction',
             'payment_histories.refundable_status as refundable_status',
+            'payment_histories.notes as payment_history_note',
             'users.name as user_name',
             'users.email as user_email',
             'orders.order_number as order_number',
             'orders.created_at as order_date',
             'orders.id as order_id',
-            'orders.notes as order_notes',
             'orders.persen_dp as order_persen_dp',
             'orders.nominal_dp as order_nominal_dp',
             'orders.lama_cicilan as order_lama_cicilan',
@@ -501,7 +500,6 @@ class OrdersController extends Controller
         }
         $request->validate($rules);
         
-
         DB::transaction(function() use ($id, $request){
             $file = "";
             if($request->hasFile('transaction_file')){
@@ -509,24 +507,24 @@ class OrdersController extends Controller
                 $file = str_replace("public/", "", $file);
             }
 
-            DB::table('payment_histories')
-            ->where('id', $request->query('payment_history'))
-            ->update([
+            $data = [
                 'nominal' => str_replace(",","", $request->nominal),
                 'transaction_file' => $file,
                 'verified_by' => auth()->user()->id,
-                'valid_transaction' => $request->valid_transaction
-            ]);
+                'valid_transaction' => $request->valid_transaction,
+            ];
+            if($request->refundable_status){
+                $data = array_merge($data, ['refundable_status' => $request->refundable_status]);
+            }
+            if($request->payment_history_note){
+                $data = array_merge($data, ['notes' => $request->payment_history_note]);
+            }
+            
+            DB::table('payment_histories')
+            ->where('id', $request->query('payment_history'))
+            ->update($data);
             
             $ph = PaymentHistories::where('id', $request->query('payment_history'))->where('valid_transaction', 1)->first();
-            // $ph  = DB::table('payment_histories')->select([
-            //     "payment_status_id",
-            //     DB::raw('SUM(nominal) as nominal')
-            // ])
-            // ->where('order_id', $id)
-            // ->where('valid_transaction', 1)
-            // ->groupBy('payment_status_id')
-            // ->get();
             
             // ubah status unit jika transaksi yang terjadi sudah valid
             if($ph != null){

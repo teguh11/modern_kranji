@@ -67,7 +67,7 @@
         ],
         drawCallback: function( settings ) {
           var api = this.api();
-          $(api.column(4).footer()).html(totalNominal);
+          $(api.column(6).footer()).html(totalNominal);
         },
         rowCallback: function (row, data) {
           if ( data.valid_transaction == "No" ) {
@@ -190,7 +190,7 @@
             </thead>
             <tfoot>
               <tr>
-                <th colspan="4">Total</th>
+                <th colspan="6">Total</th>
                 <th></th>
                 <th></th>
                 <th></th>

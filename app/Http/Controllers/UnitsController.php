@@ -223,7 +223,8 @@ class UnitsController extends Controller
                     'orders.persen_dp as order_persen_dp',
                     'orders.nominal_dp as order_nominal_dp',
                     'orders.cicilan as order_cicilan',
-                    'orders.bunga as order_bunga'
+                    'orders.bunga as order_bunga',
+                    'orders.lama_cicilan as order_lama_cicilan'
                 ])
                 ->join('unit_types', 'unit.unit_type_id', '=', 'unit_types.id')
                 ->join('floors', 'unit.floor_id', '=', 'floors.id')

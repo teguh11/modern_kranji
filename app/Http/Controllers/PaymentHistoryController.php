@@ -61,6 +61,7 @@ class PaymentHistoryController extends Controller
 
     public function data()
     {
+        DB::enableQueryLog();
         $paymentHistories = DB::table('payment_histories')
             ->select(
                 'payment_histories.id',

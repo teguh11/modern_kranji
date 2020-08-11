@@ -128,7 +128,7 @@
                   </select>
                 </div>
               </div>
-              <div class="col-md-4">
+              {{-- <div class="col-md-4">
                 <div class="form-group">
                   <label>Status Pembayaran</label>
                   <select class="form-control" name="payment_status" id="payment_status">
@@ -138,7 +138,7 @@
                     @endforeach
                   </select>
                 </div>
-              </div>
+              </div> --}}
             </div>
 
             <div class="row">
